@@ -1,0 +1,8 @@
+#pragma once
+#include "NativeGameplayTags.h"
+
+UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_PropertyStat_Player_MoveSpeed);
+UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_PropertyStat_Player_PourRate);
+
+UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_MeterStat_Customer_Happiness);
+UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_MeterStat_Customer_PatienceTime);
