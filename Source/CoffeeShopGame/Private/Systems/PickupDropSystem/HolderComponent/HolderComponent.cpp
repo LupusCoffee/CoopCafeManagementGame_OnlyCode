@@ -5,8 +5,6 @@
 #include "Net/UnrealNetwork.h"
 class ULookTraceSubsystem;
 
-//Big ol' anime tiddies
-
 //Constructors, Overrides, Init
 UHolderComponent::UHolderComponent()
 {
