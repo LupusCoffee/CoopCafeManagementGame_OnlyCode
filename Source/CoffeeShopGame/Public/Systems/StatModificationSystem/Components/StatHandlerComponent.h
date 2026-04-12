@@ -61,6 +61,10 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	bool ApplyToMeterStatModified(FGameplayTag Stat, float ValueToApply);
+	
+	UFUNCTION(BlueprintCallable)
+	bool SetMeterStatRaw(FGameplayTag Stat, float ValueToApply);
+	
 
 	//Delegates
 	UPROPERTY(BlueprintAssignable)

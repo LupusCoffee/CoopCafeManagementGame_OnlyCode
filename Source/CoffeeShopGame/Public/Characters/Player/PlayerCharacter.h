@@ -6,6 +6,7 @@
 #include "PlayerCharacter.generated.h"
 class UHolderComponent;
 class UInteractionComponent;
+class UStatHandlerCompatibleCharacterMovementComponent;
 
 UCLASS()
 class COFFEESHOPGAME_API APlayerCharacter : public ACharacter, public IStatHandleable
@@ -14,6 +15,7 @@ class COFFEESHOPGAME_API APlayerCharacter : public ACharacter, public IStatHandl
 
 public:
 	APlayerCharacter(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
+	virtual void BeginPlay() override;
 
 	//Methods
 	UFUNCTION(BlueprintCallable)
@@ -21,6 +23,9 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	UHolderComponent* GetHolderComponent();
+	
+	UFUNCTION(BlueprintCallable)
+	UStatHandlerCompatibleCharacterMovementComponent* GetStatHandleableCharMoveComp();
 
 protected:
 	//Variables, Visible --> Components
@@ -29,4 +34,7 @@ protected:
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	UHolderComponent* HolderComponent = nullptr;
+
+	UPROPERTY()
+	UStatHandlerCompatibleCharacterMovementComponent* StatHandlableMovementComponent = nullptr;
 };

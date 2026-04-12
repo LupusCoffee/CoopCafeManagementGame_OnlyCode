@@ -6,6 +6,8 @@
 #include "Subsystems/GameInstanceSubsystem.h"
 #include "ResourceRegistry.generated.h"
 
+class ACoffeeShopPlayerState;
+
 /**
  * 
  */
@@ -19,8 +21,16 @@ class COFFEESHOPGAME_API UResourceRegistry : public UGameInstanceSubsystem
 public:
 	UFUNCTION(BlueprintCallable)
 	void AddToBalance(float aAmount);
+	void AddToBalanceInternal(float aAmount);
+
+	UFUNCTION(BlueprintCallable)
+	void SetBalance(float NewBalance);
+	void SetBalanceInternal(float NewBalance);
+
 	UFUNCTION(BlueprintCallable, BlueprintPure)
 	float GetBalance();
+
+	void SetPlayerState(ACoffeeShopPlayerState* PlayerState);
 
 public:
 	UPROPERTY(BlueprintAssignable, EditAnywhere)
@@ -28,5 +38,7 @@ public:
 
 private:
 	float Balance;
-	
+
+	UPROPERTY();
+	ACoffeeShopPlayerState* LocalPlayerState;
 };

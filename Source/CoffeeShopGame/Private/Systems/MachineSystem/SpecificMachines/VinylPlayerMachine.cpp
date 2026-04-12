@@ -1,6 +1,5 @@
 #include "Systems/MachineSystem/SpecificMachines/VinylPlayerMachine.h"
 #include "Systems/Items/Actors/VinylRecord.h"
-#include "Components/AudioComponent.h"
 #include "Systems/StatModificationSystem/Components/StatModApplicationComponent.h"
 
 
@@ -8,8 +7,8 @@ AVinylPlayerMachine::AVinylPlayerMachine()
 {
 	PrimaryActorTick.bCanEverTick = false;
 
-	AudioComponent = CreateDefaultSubobject<UAudioComponent>(TEXT("AudioComponent"));
-	AudioComponent->SetupAttachment(RootComponent);
+	CustomAudioComponent = CreateDefaultSubobject<UAkComponent>(TEXT("AudioComponent"));
+	CustomAudioComponent->SetupAttachment(RootComponent);
 
 	StatModApplicationComponent = CreateDefaultSubobject<UStatModApplicationComponent>(TEXT("StatModApplicationComponent"));
 }
@@ -28,32 +27,6 @@ void AVinylPlayerMachine::TryEndMusic()
 	UpdateMusic();
 }
 
-void AVinylPlayerMachine::SetVinylRecord(AVinylRecord* InVinylRecord)
-{
-	CurrentVinylRecord = InVinylRecord;
-
-	if (StatModApplicationComponent)
-	{
-		if (CurrentVinylRecord)
-		{
-			if (CurrentVinylRecord->GetStatImpulse())
-			{
-				UStatImpulse* StatImpulse = NewObject<UStatImpulse>(this, CurrentVinylRecord->GetStatImpulse());
-				StatModApplicationComponent->SetStatImpulse(StatImpulse);
-			}
-
-			if (CurrentVinylRecord->GetStatMod())
-			{
-				UStatMod* StatMod = NewObject<UStatMod>(this, CurrentVinylRecord->GetStatMod());
-				StatModApplicationComponent->SetStatMod(StatMod);
-			}
-		}
-		else StatModApplicationComponent->SetStatMod(nullptr);
-	}
-	
-	UpdateMusic();
-}
-
 void AVinylPlayerMachine::TurnOn()
 {
 	Super::TurnOn();
@@ -66,42 +39,85 @@ void AVinylPlayerMachine::TurnOff()
 	UpdateMusic();
 }
 
+void AVinylPlayerMachine::SetVinylRecord(AVinylRecord* InVinylRecord)
+{
+	//null checks
+	if (!StatModApplicationComponent) return;
+	if (!InVinylRecord) return;
+	
+	
+	//set stat mod
+	if (InVinylRecord->GetStatImpulse())
+	{
+		UStatImpulse* StatImpulse = NewObject<UStatImpulse>(this, InVinylRecord->GetStatImpulse());
+		StatModApplicationComponent->SetStatImpulse(StatImpulse);
+	}
+
+	if (InVinylRecord->GetStatMod())
+	{
+		UStatMod* StatMod = NewObject<UStatMod>(this, InVinylRecord->GetStatMod());
+		StatModApplicationComponent->SetStatMod(StatMod);
+	}
+	
+	
+	//set vinyl
+	MostRecentVinylRecord = InVinylRecord;
+	bHasVinylRecord = true;
+	
+	
+	//update
+	UpdateMusic();
+}
+
+void AVinylPlayerMachine::RemoveVinylRecord()
+{	
+	bHasVinylRecord = false;
+	
+	if (StatModApplicationComponent) StatModApplicationComponent->SetStatMod(nullptr);
+	
+	UpdateMusic();
+}
+
 void AVinylPlayerMachine::UpdateMusic()
 {
-	if (bIsOn && bShouldPlayMusic && CurrentVinylRecord)
-	{
+	if (bIsOn && bShouldPlayMusic && bHasVinylRecord)
+	{		
 		if (bCurrentlyPlayingMusic) return;
 		
 		Server_OnMusicPlay.Broadcast();
-		Multicast_Play(CurrentVinylRecord->GetSong());
-
-		if (StatModApplicationComponent) StatModApplicationComponent->UpdateStatHandlers(true);
-		
-		bCurrentlyPlayingMusic = true;
+		PlayMusic(MostRecentVinylRecord);
 	}
 	else
 	{
 		Server_OnMusicStop.Broadcast();
-		Multicast_Stop();
-
-		if (StatModApplicationComponent) StatModApplicationComponent->UpdateStatHandlers(false);
-		
-		bCurrentlyPlayingMusic = false;
+		StopMusic(MostRecentVinylRecord);
 	}
+}
+
+void AVinylPlayerMachine::PlayMusic(AVinylRecord* Record)
+{
+	if (Record) Multicast_PostEvent(Record->GetPlayEvent());
+
+	if (StatModApplicationComponent) StatModApplicationComponent->UpdateStatHandlers(true);
+		
+	bCurrentlyPlayingMusic = true;
+}
+
+void AVinylPlayerMachine::StopMusic(AVinylRecord* Record)
+{
+	if (Record) Multicast_PostEvent(Record->GetStopEvent());
+
+	if (StatModApplicationComponent) StatModApplicationComponent->UpdateStatHandlers(false);
+		
+	bCurrentlyPlayingMusic = false;
 }
 
 
 //Play Methods
-void AVinylPlayerMachine::Multicast_Play_Implementation(USoundBase* NetSound)
+void AVinylPlayerMachine::Multicast_PostEvent_Implementation(UAkAudioEvent* Event)
 {
-	AudioComponent->SetSound(NetSound);
-	AudioComponent->Play();
-}
-
-
-void AVinylPlayerMachine::Multicast_Stop_Implementation()
-{
-	AudioComponent->Stop();
+	if (!Event) return;
+	CustomAudioComponent->PostAkEvent(Event);
 }
 
 

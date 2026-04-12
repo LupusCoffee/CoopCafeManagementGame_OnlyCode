@@ -4,49 +4,44 @@
 
 #include "CoreMinimal.h"
 #include "Engine/DataAsset.h"
-#include "Core/Data/Enums/ItemType.h"
-#include "Core/Data/Enums/ActorType.h"
-#include "Systems/Items/Enums/ResourceType.h"
+#include "CoffeeShopGame/Public/Systems/ContainerSystem/Enums/ResourceType.h"
+#include "BaseItemData.h"
 #include "ItemData.generated.h"
 
 /**
  * 
  */
 
-struct FResourceStack;
+struct FResourceAmount;
 enum class EResourceType : uint8;
 
-UCLASS(Abstract, BlueprintType)
-class COFFEESHOPGAME_API UItemDataBase : public UDataAsset
-{
-	GENERATED_BODY()
-
-public:
-	UPROPERTY(Category = "Properties", EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = true))
-	FString ItemName;
-
-	UPROPERTY(Category = "Properties", EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = true))
-	FString ItemDescription;
-};
-
 UCLASS(BlueprintType)
-class COFFEESHOPGAME_API UContentData : public UItemDataBase
+class COFFEESHOPGAME_API UContentData : public UBaseItemData
 {
 	GENERATED_BODY()
 	
 public:
 	// Define additional data here!
+	UPROPERTY(Category = "ContentProperties", EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = true))
+	UTexture2D* Icon;
+
+	UPROPERTY(Category = "ContentProperties", EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = true))
+	EResourceType ResourceType;
 };
 
 UCLASS(BlueprintType)
-class COFFEESHOPGAME_API UContainerData : public UItemDataBase
+class COFFEESHOPGAME_API UContainerData : public UBaseItemData
 {
 	GENERATED_BODY()
 
 public:
 	// Define additional data here!
 
-	//Visuals too?
+	
+	//Visuals
+	UPROPERTY(Category = "ContainerProperties|Container", EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = true))
+	UStaticMesh* Mesh;
+
 	
 	//Container
 	UPROPERTY(Category = "ContainerProperties|Container", EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = true))
@@ -58,6 +53,12 @@ public:
 	UPROPERTY(Category = "ContainerProperties|Container", EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = true), meta = (ToolTip = "Resources you can pour into the container."))
 	TArray<EResourceType> AcceptedResourceTypes;
 
+	
+	//Recipe
+	UPROPERTY(Category = "ContainerProperties|Recipe", EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = true))
+	bool bConvertsResourcesToRecipe = false;
+
+	
 	//Pouring
 	//bCanPour?
 
@@ -78,7 +79,7 @@ public:
 };
 
 UCLASS(BlueprintType)
-class COFFEESHOPGAME_API UFurnitureData : public UItemDataBase
+class COFFEESHOPGAME_API UFurnitureData : public UBaseItemData
 {
 	GENERATED_BODY()
 
@@ -87,6 +88,9 @@ public:
 
 	UPROPERTY(Category = "FurnitureProperties", EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = true))
 	UStaticMesh* Mesh;
+
+	UPROPERTY(Category = "FurnitureProperties", EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = true))
+	UTexture2D* Thumbnail;
 
 	UPROPERTY(Category = "FurnitureProperties", EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = true))
 	FVector Location = FVector::ZeroVector;

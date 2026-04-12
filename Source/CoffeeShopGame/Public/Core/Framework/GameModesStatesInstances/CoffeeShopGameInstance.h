@@ -2,8 +2,14 @@
 
 #include "CoreMinimal.h"
 #include "Engine/GameInstance.h"
-#include "Systems/Items/Subsystems/RecipeSubsystem.h"
+#include "Systems/GamblerMacMinigame/TurnBasedManager.h"
+#include "CoffeeShopGame/Public/Systems/InteractionSystem/Components/PromptComponent/PlayerPromptWidget.h"
+#include "CoffeeShopGame/Public/Systems/ContainerSystem/Subsystems/ResourceConverterSubsystem.h"
 #include "CoffeeShopGameInstance.generated.h"
+
+class UPromptWidgetBox;
+class UActionPromptSubsystem;
+class UActionPromptsData;
 
 UCLASS()
 class COFFEESHOPGAME_API UCoffeeShopGameInstance : public UGameInstance
@@ -15,13 +21,32 @@ public:
 
 protected:
 	//Variables --> Editable
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="RecipeSubsystem")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Recipe")
 	URecipeArrayDataAsset* AvailableRecipes;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="RecipeSubsystem")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Recipe")
 	URecipeArrayDataAsset* PreDiscoveredRecipes;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Grind")
+	UConversionData* AvailableGrindConversions;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Action Prompt Subsystem")
+	UActionPromptsData* ActionPromptsData;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Action Prompt Subsystem")
+	TSubclassOf<UPromptWidgetBox> PromptWidgetBoxClass;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Action Prompt Subsystem")
+	TSubclassOf<UPlayerPromptWidget> PlayerPromptWidgetClass;
+	
 	
 	//Variables --> Hidden, Subsystems
 	UPROPERTY()
-	URecipeSubsystem* RecipeSubsystem;
+	UResourceConverterSubsystem* RecipeSubsystem;
+
+	UPROPERTY()
+	UActionPromptSubsystem* ActionPromptSubsystem = nullptr;
+	
+	UPROPERTY()
+	UTurnBasedManager* GamblerMacMinigameManager;
 };

@@ -1,7 +1,7 @@
 #include "Characters/Player/PlayerCharacter.h"
 
 #include "Characters/Components/StatHandlerCompatibleCharacterMovementComponent.h"
-#include "Systems/Interaction System/Components/InteractionComponent.h"
+#include "CoffeeShopGame/Public/Systems/InteractionSystem/Components/InteractionComponent.h"
 
 
 APlayerCharacter::APlayerCharacter(const FObjectInitializer& ObjectInitializer)
@@ -13,6 +13,13 @@ APlayerCharacter::APlayerCharacter(const FObjectInitializer& ObjectInitializer)
 	HolderComponent = CreateDefaultSubobject<UHolderComponent>(TEXT("HolderComponent"));
 }
 
+void APlayerCharacter::BeginPlay()
+{
+	Super::BeginPlay();
+
+	StatHandlableMovementComponent = Cast<UStatHandlerCompatibleCharacterMovementComponent>(GetCharacterMovement());
+}
+
 UInteractionComponent* APlayerCharacter::GetInteractionComponent()
 {
 	return InteractionComponent;
@@ -21,5 +28,10 @@ UInteractionComponent* APlayerCharacter::GetInteractionComponent()
 UHolderComponent* APlayerCharacter::GetHolderComponent()
 {
 	return HolderComponent;
+}
+
+UStatHandlerCompatibleCharacterMovementComponent* APlayerCharacter::GetStatHandleableCharMoveComp()
+{
+	return StatHandlableMovementComponent;
 }
 

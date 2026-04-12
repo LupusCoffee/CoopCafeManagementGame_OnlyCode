@@ -1,9 +1,7 @@
 #include "Systems/MachineSystem/Machine.h"
-
 #include "Net/UnrealNetwork.h"
-#include "Systems/Interaction System/Components/HighlightComponent.h"
+#include "CoffeeShopGame/Public/Systems/InteractionSystem/Components/HighlightComponent.h"
 #include "Systems/MachineSystem/MachinePart.h"
-#include "Systems/PickupDropSystem/HolderComponent/HolderComponent.h"
 
 
 //Constructor, BeginPlay, etc.
@@ -47,8 +45,12 @@ void AMachine::SetupMachineParts()
 		if (!MachinePart) continue;
 		
 		MachinePart->Init(this, SocketName);
-		MachinePart->AttachToActor(this, FAttachmentTransformRules::SnapToTargetNotIncludingScale, SocketName);
+		MachinePart->AttachToActor(this, FAttachmentTransformRules::SnapToTargetIncludingScale, SocketName);
+
+		InstancedMachineParts.Add(MachinePart);
 	}
+	
+	OnMachineSetup.Broadcast(InstancedMachineParts);
 }
 
 void AMachine::TurnOn()
@@ -70,6 +72,11 @@ bool AMachine::IsOn()
 	return bIsOn;
 }
 
+TArray<AMachinePart*> AMachine::GetMachineParts()
+{
+	return InstancedMachineParts;
+}
+
 UStaticMeshComponent* AMachine::GetMeshComponent()
 {
 	return MeshComp;
@@ -77,57 +84,34 @@ UStaticMeshComponent* AMachine::GetMeshComponent()
 
 
 //Interfaces
-void AMachine::Hover_Implementation(FInteractionContext Context)
-{
-	IInteractable::Hover_Implementation(Context);
-
-	if (!HighlightComponent) return;
-	HighlightComponent->EnableHighlight();
-}
-
-void AMachine::Unhover_Implementation(FInteractionContext Context)
-{
-	IInteractable::Unhover_Implementation(Context);
-
-	if (!HighlightComponent) return;
-	HighlightComponent->DisableHighlight();
-}
-
-bool AMachine::InteractStarted_Implementation(EActionId ActionId, FInteractionContext Context)
-{
-	IInteractable::InteractStarted_Implementation(ActionId, Context);
-
-	if (ActionId == EActionId::Q) PickUpOrDrop(Context);
-
-	return true;
-}
-
-void AMachine::PickUpOrDrop(FInteractionContext Context)
-{
-	UHolderComponent* HolderComponent = Context.HolderComponent;
-	if (!HolderComponent) return;
-	
-	UHeldItem* HeldItem = HolderComponent->GetHeldItem();
-
-	if (!HeldItem)
-	{
-		UHeldItem* NewHeldItem = NewObject<UHeldItem>(HolderComponent);
-		NewHeldItem->Init(this, nullptr, nullptr);
-		
-		HolderComponent->PickUpItem(NewHeldItem);
-		
-		if (HighlightComponent) HighlightComponent->bCanHighlight = false;
-	}
-	else if (HeldItem->GetActor() == this)
-	{
-		HolderComponent->DropItem(Context.LookedAtLocation);	//drop at a "socket" or some kinda grid (idk, we'll see)
-		if (HighlightComponent) HighlightComponent->bCanHighlight = true;
-	}
-}
-
 void AMachine::GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME(AMachine, bIsOn);
+}
+
+void AMachine::Local_StartHover_Implementation(FPlayerContext Context)
+{
+	if (!HighlightComponent) return;
+	if (!Context.HolderComponent) return;
+	if (!Context.HolderComponent->GetHeldItem()) return;
+
+	AActor* HeldActor = Context.HolderComponent->GetHeldItem()->GetActor();
+	if (!HeldActor) return;
+
+	for (auto MachinePart : InstancedMachineParts)
+	{
+		if (HeldActor == MachinePart)
+		{
+			HighlightComponent->EnableHighlight();
+			return;
+		}
+	}
+}
+
+void AMachine::Local_EndHover_Implementation(FPlayerContext Context)
+{
+	if (!HighlightComponent) return;
+	HighlightComponent->DisableHighlight();
 }

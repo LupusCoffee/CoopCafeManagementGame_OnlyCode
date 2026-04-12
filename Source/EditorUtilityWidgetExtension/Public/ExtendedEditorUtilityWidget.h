@@ -16,14 +16,11 @@ class EDITORUTILITYWIDGETEXTENSION_API UExtendedEditorUtilityWidget : public UEd
 
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnSelectionChangedDelegate, UObject*, NewSelection);
 
-	UFUNCTION(BlueprintCallable)
-	void Init();
-
 	UPROPERTY(BlueprintAssignable)
 	FOnSelectionChangedDelegate OnSelectionChange;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Properties", AdvancedDisplay, meta = (AllowPrivateAccess = true, EditCondition = "bIsRecipe"))
-	UTexture2D* CraftedItemIcon;
+public:
+	virtual bool Initialize() override;
 
 private:
 	void BroadcastSelectionChanged(UObject* NewSelection);

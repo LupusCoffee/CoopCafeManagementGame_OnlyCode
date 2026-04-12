@@ -21,15 +21,17 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta = (ToolTip = "Stats that can be added and removed from. The way they change are affected by thier property stats."))
 	TArray<FMeterStat> MeterStats;
 
+#if WITH_EDITOR
 	virtual void PostEditChangeProperty(struct FPropertyChangedEvent& PropertyChangedEvent) override;
+#endif
 };
 
 
+#if WITH_EDITOR
 inline void UStatsTable::PostEditChangeProperty(struct FPropertyChangedEvent& PropertyChangedEvent)
 {
 	Super::PostEditChangeProperty(PropertyChangedEvent);
-
-#if WITH_EDITOR
+	
 	FProperty* MemberProperty = PropertyChangedEvent.MemberProperty;
 	if (!MemberProperty) return;
 	
@@ -54,5 +56,5 @@ inline void UStatsTable::PostEditChangeProperty(struct FPropertyChangedEvent& Pr
 			FixupWithModType(Meter.FlatBonus);
 		}
 	}
-#endif
 }
+#endif

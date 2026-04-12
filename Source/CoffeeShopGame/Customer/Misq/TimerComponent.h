@@ -35,26 +35,36 @@ public:
 
 	// Events
 	UPROPERTY(BlueprintAssignable) FTimerFinishedSignature OnTimerFinished;
-	UPROPERTY(BlueprintAssignable) FTimerTickSignature OnTimerTick; // fired by UI update timer
+	UPROPERTY(BlueprintAssignable) FTimerTickSignature OnTimerTick;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Timer")
+	float UITickInterval = 0.1f;
 
 protected:
 	virtual void BeginPlay() override;
 
 private:
-	// Single authoritative end time (world seconds)
+	UPROPERTY()
 	float EndTimeSeconds = 0.0f;
+	UPROPERTY()
 	bool bIsRunning = false;
-
-	// Timer handle used for the final expiration callback
+	UPROPERTY()
 	FTimerHandle FinishHandle;
 
 	// Optional repeating handle for UI ticks (e.g. 0.1s)
-	FTimerHandle UITickHandle;
-	float UITickInterval = 0.1f;
+	UPROPERTY()
+	FTimerHandle UITickHandle;	
+	
+	UPROPERTY()
+	float PausedRemainingSeconds = 0.0f; 
 
 	// Helpers
+	UFUNCTION(BlueprintCallable, Category = "Loop Management")
 	float NowSeconds() const;
+	UFUNCTION(BlueprintCallable, Category = "Loop Management")
 	void ScheduleFinishTimer();
+	UFUNCTION(BlueprintCallable, Category = "Loop Management")
 	void OnFinishTimerFired();
-	void FireUITick(); // calls OnTimerTick with remaining
+	UFUNCTION(BlueprintCallable, Category = "Loop Management")
+	void FireUITick();
 };

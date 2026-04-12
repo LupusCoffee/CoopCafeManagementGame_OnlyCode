@@ -3,9 +3,13 @@
 #pragma once
 
 #include "CoreMinimal.h"
+
 #include "GameFramework/Pawn.h"
 
 #include "Queue.generated.h"
+
+class ACustomer;
+class USplineComponent;
 
 UCLASS()
 class COFFEESHOPGAME_API AQueue : public AActor
@@ -23,29 +27,48 @@ protected:
 public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
 	UFUNCTION(BlueprintCallable)
-	bool AddCustomer(APawn* customer);
+	bool AddCustomer(ACustomer* customer);
 
 	UFUNCTION(BlueprintCallable)
-	void CustomerLeavesQueue(APawn* customer);
+	void CustomerLeavesQueue(ACustomer* customer);
 
 	UFUNCTION(BlueprintCallable)
-	void GenerateQueuePositions(int _amountOfPositionsToGenerate);
+	void GenerateQueuePositions();
+	
+	UFUNCTION(BlueprintCallable)
+	int GetPositionInQueue(ACustomer* customer) const;
 
 	UPROPERTY(EditAnywhere)
 	float DistanceBetweenQueuePositions = 200.0f;
 
-	UPROPERTY(VisibleAnywhere)
+	UPROPERTY(Replicated, VisibleAnywhere, BlueprintReadOnly)
+	int NumQueuePositions = 0;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	USplineComponent* QueueSpline;
+	
+	UPROPERTY(Replicated, VisibleAnywhere)
 	TArray<FVector> QueuePositions;
 	
-	UPROPERTY(VisibleAnywhere)
-	TArray<APawn*> CustomerList;
+	UPROPERTY(Replicated, VisibleAnywhere)
+	TArray<ACustomer*> CustomerList;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	UStaticMeshComponent* ChairMesh;
 	
 private:
+	UFUNCTION(Server, Reliable)
+	void Server_AddCustomer(ACustomer* Customer);
+
+	UFUNCTION(Server, Reliable)
+	void Server_CustomerLeavesQueue(ACustomer* Customer);
+
+	bool AddCustomerInternal(ACustomer* Customer);
+	void CustomerLeavesQueueInternal(ACustomer* Customer);
+
 	UFUNCTION(BlueprintCallable)
 	bool CanAddCustomer();
 

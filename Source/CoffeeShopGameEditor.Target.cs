@@ -10,6 +10,6 @@ public class CoffeeShopGameEditorTarget : TargetRules
 		Type = TargetType.Editor;
 		DefaultBuildSettings = BuildSettingsVersion.V5;
 
-		ExtraModuleNames.AddRange( new string[] { "CoffeeShopGame" } );
+		ExtraModuleNames.AddRange( new string[] { "CoffeeShopGame", "GOAPSystem", "ShopSystem"} );
 	}
 }

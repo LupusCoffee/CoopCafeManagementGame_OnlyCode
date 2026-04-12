@@ -1,6 +1,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "AkComponent.h"
 #include "Systems/MachineSystem/Machine.h"
 #include "VinylPlayerMachine.generated.h"
 class UStatModApplicationComponent;
@@ -26,6 +27,9 @@ public:
 	
 	UFUNCTION(BlueprintCallable, Category= "Vinyl Player")
 	void SetVinylRecord(AVinylRecord* InVinylRecord);
+	
+	UFUNCTION(BlueprintCallable, Category= "Vinyl Player")
+	void RemoveVinylRecord();
 
 	UFUNCTION(BlueprintCallable, Category= "Vinyl Player")
 	void UpdateMusic();
@@ -38,10 +42,7 @@ public:
 
 	//Methods, Multicast Music Playing
 	UFUNCTION(NetMulticast, Reliable)
-	void Multicast_Play(USoundBase* NetSound);
-
-	UFUNCTION(NetMulticast, Reliable)
-	void Multicast_Stop();
+	void Multicast_PostEvent(UAkAudioEvent* Event);
 
 
 	//Methods, Getters
@@ -61,12 +62,21 @@ public:
 	
 
 protected:
+	//Methods
+	UFUNCTION()
+	void PlayMusic(AVinylRecord* Record);
+	
+	UFUNCTION()
+	void StopMusic(AVinylRecord* Record);
+	
+	
 	//Variables, Editable --> Components
 	UPROPERTY(EditDefaultsOnly, Category= "Vinyl Player")
-	UAudioComponent* AudioComponent = nullptr;
+	UAkComponent* CustomAudioComponent = nullptr;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	UStatModApplicationComponent* StatModApplicationComponent = nullptr;
+	
 	
 	//Variables, Editable --> Static
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category= "Settings | Vinyl Player")
@@ -75,13 +85,24 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category= "Settings | Vinyl Player")
 	float MaxDegreeStartRange = 90.0f;
 	
+	
 	//Variables, Visible --> Dynamic
 	UPROPERTY(BlueprintReadOnly, Category= "Vinyl Player")
 	bool bShouldPlayMusic = false;
+	
+	UPROPERTY(BlueprintReadOnly, Category= "Vinyl Player")
+	bool bHasVinylRecord = false;
 
 	UPROPERTY(BlueprintReadOnly, Category= "Vinyl Player")
 	bool bCurrentlyPlayingMusic = false;
 	
+	
 	UPROPERTY(BlueprintReadOnly, Category= "Vinyl Player")
-	AVinylRecord* CurrentVinylRecord = nullptr;
+	AVinylRecord* MostRecentVinylRecord = nullptr;
+	
+	UPROPERTY(BlueprintReadOnly, Category= "Vinyl Player")
+	UAkAudioEvent* CurrentPlayEvent = nullptr;
+	
+	UPROPERTY(BlueprintReadOnly, Category= "Vinyl Player")
+	UAkAudioEvent* CurrentStopEvent = nullptr;
 };

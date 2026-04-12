@@ -1,5 +1,6 @@
 #include "Systems/MachineSystem/MachinePart.h"
-#include "Systems/Interaction System/Components/HighlightComponent.h"
+#include "CoffeeShopGame/Public/Systems/InteractionSystem/Components/HighlightComponent.h"
+#include "CoffeeShopGame/Public/Systems/InteractionSystem/Components/PromptComponent/ItemPromptComponent.h"
 
 
 //Constructor
@@ -8,16 +9,13 @@ AMachinePart::AMachinePart()
 	PrimaryActorTick.bCanEverTick = true;
 
 	Root = CreateDefaultSubobject<USceneComponent>(TEXT("Root"));
-	MeshComp = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("StaticMesh"));
+	BaseMeshComp = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("StaticMesh"));
 	HighlightComponent = CreateDefaultSubobject<UHighlightComponent>(TEXT("HighlightComponent"));
-
+	ItemPromptComp = CreateDefaultSubobject<UItemPromptComponent>(TEXT("PromptComponent"));
+	
 	RootComponent = Root;
-	MeshComp->SetupAttachment(Root);
-}
-
-void AMachinePart::BeginPlay()
-{
-	Super::BeginPlay();
+	BaseMeshComp->SetupAttachment(Root);
+	ItemPromptComp->SetupAttachment(Root);
 }
 
 bool AMachinePart::Init(AMachine* _Owner, FName _ParentSocket)
@@ -28,28 +26,4 @@ bool AMachinePart::Init(AMachine* _Owner, FName _ParentSocket)
 	ParentSocket = _ParentSocket;
 
 	return true;
-}
-
-void AMachinePart::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-}
-
-
-//Interface
-void AMachinePart::Hover_Implementation(FInteractionContext Context)
-{
-	IInteractable::Hover_Implementation(Context);
-}
-
-void AMachinePart::Unhover_Implementation(FInteractionContext Context)
-{
-	IInteractable::Unhover_Implementation(Context);
-}
-
-bool AMachinePart::InteractStarted_Implementation(EActionId ActionId, FInteractionContext Context)
-{
-	IInteractable::InteractStarted_Implementation(ActionId, Context);
-
-	return false;
 }

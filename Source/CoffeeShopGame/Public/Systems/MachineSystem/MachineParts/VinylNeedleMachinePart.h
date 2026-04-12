@@ -1,5 +1,3 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
 #pragma once
 
 #include "CoreMinimal.h"
@@ -43,9 +41,9 @@ protected:
 	
 	
 	//Interface
-	virtual void Hover_Implementation(FInteractionContext Context) override;
-	virtual void Unhover_Implementation(FInteractionContext Context) override;
-	virtual bool InteractStarted_Implementation(EActionId ActionId, FInteractionContext Context) override;
-	virtual bool InteractOngoing_Implementation(EActionId ActionId, FInteractionContext Context) override;
-	virtual bool InteractCompleted_Implementation(EActionId ActionId, FInteractionContext Context) override;
+	virtual void Local_StartHover_Implementation(FPlayerContext Context) override;
+	virtual void Local_EndHover_Implementation(FPlayerContext Context) override;
+	virtual bool Server_StartInteraction_Implementation(EActionId ActionId, FPlayerContext Context) override;
+	virtual bool Server_TickInteraction_Implementation(EActionId ActionId, FPlayerContext Context, float DeltaTime) override;
+	virtual bool Server_EndInteraction_Implementation(EActionId ActionId, FPlayerContext Context) override;
 };

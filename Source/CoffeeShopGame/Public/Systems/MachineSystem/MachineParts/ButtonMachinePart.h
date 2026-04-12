@@ -13,7 +13,7 @@ public:
 	AButtonMachinePart();
 
 protected:
-	virtual void Hover_Implementation(FInteractionContext Context) override;
-	virtual void Unhover_Implementation(FInteractionContext Context) override;
-	virtual bool InteractStarted_Implementation(EActionId ActionId, FInteractionContext Context) override;
+	virtual void Local_StartHover_Implementation(FPlayerContext Context) override;
+	virtual void Local_EndHover_Implementation(FPlayerContext Context) override;
+	virtual bool Server_StartInteraction_Implementation(EActionId ActionId, FPlayerContext Context) override;
 };

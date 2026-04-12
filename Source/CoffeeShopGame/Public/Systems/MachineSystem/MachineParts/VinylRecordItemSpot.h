@@ -3,7 +3,6 @@
 #include "CoreMinimal.h"
 #include "ItemSpotMachinePart.h"
 #include "Systems/Items/Actors/VinylRecord.h"
-#include "Systems/StatModificationSystem/Components/StatModApplicationComponent.h"
 #include "VinylRecordItemSpot.generated.h"
 class AVinylPlayerMachine;
 class UMusicPlayerComponent;
@@ -29,4 +28,5 @@ protected:
 	//Methods --> Overrides
 	virtual bool PlaceItem(UHolderComponent* HolderComponent) override;
 	virtual bool TakeItem(UHolderComponent* HolderComponent) override;
+	virtual bool SwitchItem(UHolderComponent* HolderComponent) override;
 };

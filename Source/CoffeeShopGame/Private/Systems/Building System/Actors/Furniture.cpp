@@ -1,13 +1,13 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "Systems/Building System/Actors/Furniture.h"
+#include "CoffeeShopGame/Public/Systems/BuildingSystem/Actors/Furniture.h"
 #include "Net/UnrealNetwork.h"
-#include "Systems/Building System/Components/BuildingComponent.h"
-#include "Systems/PickupDropSystem/HolderComponent/HolderComponent.h"
+#include "CoffeeShopGame/Public/Systems/BuildingSystem/Components/BuildingComponent.h"
+#include "CoffeeShopGame/Public/Systems/HolderSystem/HolderComponent/HolderComponent.h"
 
 //General Stuff
-bool AFurniture::PickUp(const FInteractionContext& Context)
+/*bool AFurniture::PickUp(const FPlayerContext& Context)
 {
 	UHolderComponent* HolderComponent = Context.HolderComponent;
 	if (!HolderComponent) return false;
@@ -23,7 +23,7 @@ bool AFurniture::PickUp(const FInteractionContext& Context)
 	return Super::PickUp(Context);
 }
 
-bool AFurniture::Drop(const FInteractionContext& Context)
+bool AFurniture::Drop(const FPlayerContext& Context)
 {
 	UHolderComponent* HolderComponent = Context.HolderComponent;
 	if (!HolderComponent) return false;
@@ -35,7 +35,7 @@ bool AFurniture::Drop(const FInteractionContext& Context)
 
 	if (BuildingComponent->ResetBuildingPreview(Context.LookedAtLocation, Location))
 	{
-		FInteractionContext NewContext(Context);
+		FPlayerContext NewContext(Context);
 		NewContext.LookedAtLocation = Location;
 		if (!Super::Drop(NewContext))
 			return false;
@@ -45,11 +45,14 @@ bool AFurniture::Drop(const FInteractionContext& Context)
 	}
 
 	return false;
-}
+}*/
 
 void AFurniture::BeginPlay()
 {
 	Super::BeginPlay();
+
+	if (!HasAuthority())
+		return;
 
 	MeshComp->SetStaticMesh(Data->Mesh);
 	SetActorScale3D(Data->Scale);

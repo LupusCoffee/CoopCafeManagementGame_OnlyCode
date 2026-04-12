@@ -74,7 +74,7 @@ void UStatModApplicationComponent::SetStatMod(UStatMod* StatMod)
 }
 
 void UStatModApplicationComponent::OnActorEnterRadius(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
-	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+                                                      UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	UStatHandlerComponent* StatHandler = OtherActor->FindComponentByClass<UStatHandlerComponent>();
 	if (!StatHandler) return;

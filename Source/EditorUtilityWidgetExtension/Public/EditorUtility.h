@@ -21,4 +21,7 @@ public:
 	static void SetObjectPropertyByName(UBlueprint* BlueprintAsset, FString PropertyName, UObject* Object);
 	UFUNCTION(BlueprintCallable)
 	static TArray<UObject*> GetAllAssetOfClass(UClass* AssetClass, bool SearchSubclass = false);
+
+	UFUNCTION(BlueprintCallable)
+	static UTexture2D* SaveThumbnailAsTexture2D(UObject* obj, FString TextureName, FString GamePath);
 };

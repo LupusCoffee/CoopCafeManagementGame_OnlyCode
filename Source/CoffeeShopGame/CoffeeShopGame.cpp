@@ -1,6 +1,3 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-#include "CoffeeShopGame.h"
-#include "Modules/ModuleManager.h"
-
-IMPLEMENT_PRIMARY_GAME_MODULE( FDefaultGameModuleImpl, CoffeeShopGame, "CoffeeShopGame" );
+IMPLEMENT_PRIMARY_GAME_MODULE(FDefaultGameModuleImpl, CoffeeShopGame, "CoffeeShopGame" );

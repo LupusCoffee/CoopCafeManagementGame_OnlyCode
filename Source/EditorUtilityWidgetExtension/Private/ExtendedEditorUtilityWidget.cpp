@@ -4,9 +4,11 @@
 #include "ExtendedEditorUtilityWidget.h"
 #include "Selection.h"
 
-void UExtendedEditorUtilityWidget::Init()
+bool UExtendedEditorUtilityWidget::Initialize()
 {
 	USelection::SelectionChangedEvent.AddUObject(this, &UExtendedEditorUtilityWidget::BroadcastSelectionChanged);
+
+	return Super::Initialize();
 }
 
 void UExtendedEditorUtilityWidget::BroadcastSelectionChanged(UObject* NewSelection)

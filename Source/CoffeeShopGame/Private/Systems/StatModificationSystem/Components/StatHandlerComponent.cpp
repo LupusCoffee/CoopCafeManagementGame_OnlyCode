@@ -194,6 +194,25 @@ bool UStatHandlerComponent::ApplyToMeterStatModified(FGameplayTag Stat, float Va
 	return false;
 }
 
+bool UStatHandlerComponent::SetMeterStatRaw(FGameplayTag Stat, float ValueToApply)
+{
+	if (StoredMeterStats.IsEmpty()) return false;
+	
+	for (int i = 0; i < StoredMeterStats.Num(); i++)
+	{
+		FMeterStat* StoredMeterStat = &StoredMeterStats[i];
+			
+		if (StoredMeterStat->MeterStat.MatchesTagExact(Stat))
+		{
+			StoredMeterStat->Value = ValueToApply;
+			
+			return true;
+		}
+	}
+	
+	return false;
+}
+
 
 //Other Utility
 float UStatHandlerComponent::Calculate(float ValueA, EModificationType ModType, float ValueB)
@@ -219,6 +238,6 @@ float UStatHandlerComponent::Calculate(float ValueA, EModificationType ModType, 
 void UStatHandlerComponent::GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
-	
+
 	DOREPLIFETIME(UStatHandlerComponent, StoredMeterStats);
 }

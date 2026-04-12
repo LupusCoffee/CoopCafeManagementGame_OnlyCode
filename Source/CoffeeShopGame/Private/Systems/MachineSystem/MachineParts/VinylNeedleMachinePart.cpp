@@ -1,8 +1,10 @@
 #include "Systems/MachineSystem/MachineParts/VinylNeedleMachinePart.h"
 #include "GameFramework/CharacterMovementComponent.h"
-#include "Systems/Interaction System/Components/HighlightComponent.h"
-#include "Systems/Interaction System/Components/InteractionComponent.h"
-#include "Systems/Items/Components/MusicPlayerComponent.h"
+#include "CoffeeShopGame/Public/Systems/InteractionSystem/Components/HighlightComponent.h"
+#include "CoffeeShopGame/Public/Systems/InteractionSystem/Components/InteractionComponent.h"
+#include "CoffeeShopGame/Public/Systems/InteractionSystem/Components/PromptComponent/ActionEnum.h"
+#include "CoffeeShopGame/Public/Systems/InteractionSystem/Components/PromptComponent/ItemPromptComponent.h"
+#include "CoffeeShopGame/Public/Systems/InteractionSystem/Components/PromptComponent/PromptWidgetBox.h"
 
 
 //Setup and Tick
@@ -15,7 +17,7 @@ void AVinylNeedleMachinePart::BeginPlay()
 {
 	Super::BeginPlay();
 
-	MeshComp->SetIsReplicated(true);
+	BaseMeshComp->SetIsReplicated(true);
 }
 
 bool AVinylNeedleMachinePart::Init(AMachine* _Owner, FName _ParentSocket)
@@ -30,25 +32,29 @@ bool AVinylNeedleMachinePart::Init(AMachine* _Owner, FName _ParentSocket)
 
 
 //Interface and Such
-void AVinylNeedleMachinePart::Hover_Implementation(FInteractionContext Context)
+void AVinylNeedleMachinePart::Local_StartHover_Implementation(FPlayerContext Context)
 {
-	Super::Hover_Implementation(Context);
+	Super::Local_StartHover_Implementation(Context);
 
-	if (!HighlightComponent) return;
-	HighlightComponent->EnableHighlight();
+	if (HighlightComponent) HighlightComponent->EnableHighlight();
+	
+	if (!ItemPromptComp || !ItemPromptComp->GetPromptBox()) return;
+	ItemPromptComp->GetPromptBox()->SetPrompts({EAction::MachineInteraction_Grab});
 }
 
-void AVinylNeedleMachinePart::Unhover_Implementation(FInteractionContext Context)
+void AVinylNeedleMachinePart::Local_EndHover_Implementation(FPlayerContext Context)
 {
-	Super::Unhover_Implementation(Context);
+	Super::Local_EndHover_Implementation(Context);
 
-	if (!HighlightComponent) return;
-	HighlightComponent->DisableHighlight();
+	if (HighlightComponent) HighlightComponent->DisableHighlight();
+	
+	if (!ItemPromptComp || !ItemPromptComp->GetPromptBox()) return;
+	ItemPromptComp->GetPromptBox()->ClearPrompts();
 }
 
-bool AVinylNeedleMachinePart::InteractStarted_Implementation(EActionId ActionId, FInteractionContext Context)
+bool AVinylNeedleMachinePart::Server_StartInteraction_Implementation(EActionId ActionId, FPlayerContext Context)
 {
-	Super::InteractStarted_Implementation(ActionId, Context);
+	Super::Server_StartInteraction_Implementation(ActionId, Context);
 
 	if (ActionId != EActionId::LeftMouseButton) return false;
 	
@@ -58,9 +64,9 @@ bool AVinylNeedleMachinePart::InteractStarted_Implementation(EActionId ActionId,
 	return true;
 }
 
-bool AVinylNeedleMachinePart::InteractOngoing_Implementation(EActionId ActionId, FInteractionContext Context)
+bool AVinylNeedleMachinePart::Server_TickInteraction_Implementation(EActionId ActionId, FPlayerContext Context, float DeltaTime)
 {
-	Super::InteractOngoing_Implementation(ActionId, Context);
+	Super::Server_TickInteraction_Implementation(ActionId, Context, DeltaTime);
 
 	if (ActionId != EActionId::LeftMouseButton) return false;
 
@@ -69,9 +75,9 @@ bool AVinylNeedleMachinePart::InteractOngoing_Implementation(EActionId ActionId,
 	return true;
 }
 
-bool AVinylNeedleMachinePart::InteractCompleted_Implementation(EActionId ActionId, FInteractionContext Context)
+bool AVinylNeedleMachinePart::Server_EndInteraction_Implementation(EActionId ActionId, FPlayerContext Context)
 {
-	Super::InteractCompleted_Implementation(ActionId, Context);
+	Super::Server_EndInteraction_Implementation(ActionId, Context);
 
 	if (ActionId != EActionId::LeftMouseButton) return false;
 
@@ -93,9 +99,9 @@ void AVinylNeedleMachinePart::UpdateRotation(FVector LookedAtLocation)
 	FVector TargetLocation = FVector(LookedAtLocation.X, LookedAtLocation.Y, GetActorLocation().Z);
 
 	FVector TargetDirection = (TargetLocation - GetActorLocation()).GetSafeNormal();
-	FRotator ResultRotator = TargetDirection.Rotation();
+	FRotator ResultRotator = TargetDirection.Rotation() + FRotator(0, 90, 0);
 	
-	MeshComp->SetRelativeRotation(ResultRotator);
+	BaseMeshComp->SetWorldRotation(ResultRotator);
 
 	CurrentRotationDegrees = FRotator::ClampAxis(ResultRotator.Yaw);
 }

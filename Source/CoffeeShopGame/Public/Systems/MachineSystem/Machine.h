@@ -1,10 +1,8 @@
-
 #pragma once
 
 
 //Includes
 #include "CoreMinimal.h"
-#include "Core/Data/Enums/ActorType.h"
 #include "Core/Data/Interfaces/Interactable.h"
 #include "GameFramework/Actor.h"
 #include "Machine.generated.h"
@@ -14,6 +12,7 @@ class AMachinePart;
 
 
 //Delegates
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnMachineSetup, const TArray<AMachinePart*>&, MachineParts);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnMachineStatus);
 
 
@@ -28,6 +27,9 @@ public:
 	
 	//Delegates
 	UPROPERTY(BlueprintAssignable, Category="Events")
+	FOnMachineSetup OnMachineSetup;
+	
+	UPROPERTY(BlueprintAssignable, Category="Events")
 	FOnMachineStatus OnMachineActivated;
 
 	UPROPERTY(BlueprintAssignable, Category="Events")
@@ -41,12 +43,16 @@ public:
 	UFUNCTION()
 	virtual void TurnOff();
 	
-	UFUNCTION()
+	UFUNCTION(BlueprintCallable, BlueprintPure)
 	bool IsOn();
+	
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+	TArray<AMachinePart*> GetMachineParts();
 
 	//Methods --> Getters
 	UFUNCTION()
 	UStaticMeshComponent* GetMeshComponent();	//hmmmmmmmmmmm --> shouldn't be here
+	
 
 protected:
 	//Core Overrides
@@ -66,23 +72,23 @@ protected:
 	TMap<FName, TSubclassOf<AMachinePart>> MachineParts;
 	
 	//Variables --> Hidden
-	UPROPERTY(Replicated)
+	UPROPERTY(Replicated, BlueprintReadOnly)
 	bool bIsOn = false;
+	
+	UPROPERTY(EditAnywhere, Category = "Settings")
+	TArray<AMachinePart*> InstancedMachineParts;
 
 	
 	//Methods
 	UFUNCTION()
 	void SetupMachineParts();
 	
-	//Interface
-	virtual void Hover_Implementation(FInteractionContext Context) override;
-	virtual void Unhover_Implementation(FInteractionContext Context) override;
-	virtual bool InteractStarted_Implementation(EActionId ActionId, FInteractionContext Context) override;
-	
-	//Interface-Used Methods
-	UFUNCTION()
-	void PickUpOrDrop(FInteractionContext Context);
 
 	//Replication
 	virtual void GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const override;
+
+
+	//Cosmetic Shiz
+	virtual void Local_StartHover_Implementation(FPlayerContext Context) override;
+	virtual void Local_EndHover_Implementation(FPlayerContext Context) override;
 };

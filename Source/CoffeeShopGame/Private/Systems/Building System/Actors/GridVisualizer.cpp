@@ -1,9 +1,9 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "Systems/Building System/Actors/GridVisualizer.h"
+#include "CoffeeShopGame/Public/Systems/BuildingSystem/Actors/GridVisualizer.h"
 #include "ProceduralMeshComponent.h"
-#include "Systems/Building System/Subsystems/BuildingSubsystem.h"
+#include "CoffeeShopGame/Public/Systems/BuildingSystem/Subsystems/BuildingSubsystem.h"
 #include "Core/Data/DataAssets/ItemData.h"
 #include "Core/Framework/DeveloperSettings/GridSettings.h"
 

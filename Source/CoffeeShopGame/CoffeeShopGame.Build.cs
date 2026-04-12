@@ -6,6 +6,13 @@ public class CoffeeShopGame : ModuleRules
 {
 	public CoffeeShopGame(ReadOnlyTargetRules Target) : base(Target)
 	{
+		PrivateDependencyModuleNames.AddRange(new string[]
+		{
+			"GOAPSystem",
+			 "Slate",
+			 "SlateCore",
+			 "UnrealEd"
+		});
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 
         PublicDependencyModuleNames.AddRange(new string[] {
@@ -21,7 +28,14 @@ public class CoffeeShopGame : ModuleRules
                                                                 "Niagara",
                                                                 "NavigationSystem",
                                                                 "ProceduralMeshComponent",
-                                                                "GameplayTags"
-                                                          });
+                                                                "GameplayTags",
+                                                                "TrackSystem",
+                                                                "GOAPSystem",
+                                                                "UMG",
+                                                                "Wwise",
+                                                                "AkAudio",
+                                                                "EventSystem",
+                                                                "ShopSystem"
+        });
     }
 }

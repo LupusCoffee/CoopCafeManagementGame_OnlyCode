@@ -5,6 +5,7 @@
 #include "Machine.h"
 #include "GameFramework/Actor.h"
 #include "MachinePart.generated.h"
+class UItemPromptComponent;
 class UHighlightComponent;
 
 
@@ -15,37 +16,29 @@ class COFFEESHOPGAME_API AMachinePart : public AActor, public IInteractable
 
 public:
 	AMachinePart();
-	virtual void Tick(float DeltaTime) override;
-
-	//Methods
+	
 	UFUNCTION()
 	virtual bool Init(AMachine* _Owner, FName _ParentSocket);
 
-protected:
-	virtual void BeginPlay() override;
-
-	
+protected:	
 	//Variables --> Components
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	USceneComponent* Root = nullptr;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	UStaticMeshComponent* MeshComp = nullptr;
+	UStaticMeshComponent* BaseMeshComp = nullptr;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	UHighlightComponent* HighlightComponent = nullptr;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	UItemPromptComponent* ItemPromptComp = nullptr;
 
 	
 	//Variables --> Hidden
-	UPROPERTY()
+	UPROPERTY(BlueprintReadOnly)
 	AMachine* OwnerMachine = nullptr;
 	
 	UPROPERTY()
 	FName ParentSocket;
-
-
-	//Interface
-	virtual void Hover_Implementation(FInteractionContext Context) override;
-	virtual void Unhover_Implementation(FInteractionContext Context) override;
-	virtual bool InteractStarted_Implementation(EActionId ActionId, FInteractionContext Context) override;
 };

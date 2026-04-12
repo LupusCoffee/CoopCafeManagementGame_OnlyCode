@@ -1,6 +1,9 @@
 #include "Systems/MachineSystem/MachineParts/ButtonMachinePart.h"
 
-#include "Systems/Interaction System/Components/HighlightComponent.h"
+#include "CoffeeShopGame/Public/Systems/InteractionSystem/Components/HighlightComponent.h"
+#include "CoffeeShopGame/Public/Systems/InteractionSystem/Components/PromptComponent/ActionEnum.h"
+#include "CoffeeShopGame/Public/Systems/InteractionSystem/Components/PromptComponent/ItemPromptComponent.h"
+#include "CoffeeShopGame/Public/Systems/InteractionSystem/Components/PromptComponent/PromptWidgetBox.h"
 
 
 AButtonMachinePart::AButtonMachinePart()
@@ -8,27 +11,31 @@ AButtonMachinePart::AButtonMachinePart()
 	PrimaryActorTick.bCanEverTick = false;
 }
 
-void AButtonMachinePart::Hover_Implementation(FInteractionContext Context)
+void AButtonMachinePart::Local_StartHover_Implementation(FPlayerContext Context)
 {
-	IInteractable::Hover_Implementation(Context);
+	IInteractable::Local_StartHover_Implementation(Context);
+	
+	ItemPromptComp->GetPromptBox()->AddPrompts({EAction::MachineInteraction_PressButton});
+	ItemPromptComp->SetVisibility(true);
 
-	if (!HighlightComponent) return;
-	HighlightComponent->EnableHighlight();
+	if (HighlightComponent) HighlightComponent->EnableHighlight();
 }
 
-void AButtonMachinePart::Unhover_Implementation(FInteractionContext Context)
+void AButtonMachinePart::Local_EndHover_Implementation(FPlayerContext Context)
 {
-	IInteractable::Unhover_Implementation(Context);
+	IInteractable::Local_EndHover_Implementation(Context);
+	
+	ItemPromptComp->SetVisibility(false);
+	ItemPromptComp->GetPromptBox()->ClearPrompts();
 
-	if (!HighlightComponent) return;
-	HighlightComponent->DisableHighlight();
+	if (HighlightComponent) HighlightComponent->DisableHighlight();
 }
 
-bool AButtonMachinePart::InteractStarted_Implementation(EActionId ActionId, FInteractionContext Context)
+bool AButtonMachinePart::Server_StartInteraction_Implementation(EActionId ActionId, FPlayerContext Context)
 {
-	Super::InteractStarted_Implementation(ActionId, Context);
+	Super::Server_StartInteraction_Implementation(ActionId, Context);
 
-	if (ActionId != EActionId::E) return false;
+	if (ActionId != EActionId::LeftMouseButton) return false;
 
 	bool MachineIsOn = OwnerMachine->IsOn();
 	

@@ -5,7 +5,7 @@
 #include "Systems/MachineSystem/MachinePart.h"
 #include "ItemSpotMachinePart.generated.h"
 
-UCLASS()
+UCLASS(Blueprintable)
 class COFFEESHOPGAME_API AItemSpotMachinePart : public AMachinePart
 {
 	GENERATED_BODY()
@@ -14,6 +14,9 @@ public:
 	AItemSpotMachinePart();
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaTime) override;
+	
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+	AActor* GetActorAtSpot();
 
 protected:
 	//Variables --> Editable
@@ -33,10 +36,17 @@ protected:
 
 	UPROPERTY(Replicated)
 	bool HoldingAnItem = false;
-
+	
 	UPROPERTY(Replicated)
 	bool SwitchingItems = false;
+
 	
+	//Interface
+	virtual void Local_StartHover_Implementation(FPlayerContext PlayerContext) override;
+	virtual void Local_TickHover_Implementation(FPlayerContext Context, float DeltaTime) override;
+	virtual void Local_EndHover_Implementation(FPlayerContext Context) override;
+	virtual bool Server_StartInteraction_Implementation(EActionId ActionId, FPlayerContext Context) override;
+
 	
 	//Methods
 	UFUNCTION()
@@ -53,13 +63,7 @@ protected:
 
 	UFUNCTION()
 	virtual bool SwitchItem(UHolderComponent* HolderComponent);
-
 	
-	//Interface
-	virtual void Hover_Implementation(FInteractionContext Context) override;
-	virtual void Unhover_Implementation(FInteractionContext Context) override;
-	virtual bool InteractStarted_Implementation(EActionId ActionId, FInteractionContext Context) override;
-
 
 	//Methods --> Replication, OnRep
 	UFUNCTION()

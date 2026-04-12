@@ -16,8 +16,11 @@ class COFFEESHOPGAME_API IFillable
 
 public:
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
-	void Recieve(EResourceType ResourceTypeToAdd, float FilledVolume);
+	void PourInto(EResourceType ResourceTypeToAdd, float FilledVolume);
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
 	void Dispense(float DrainedVolume);
+
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
+	void MixContents();
 };

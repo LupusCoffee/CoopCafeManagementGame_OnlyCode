@@ -1,9 +1,11 @@
 #include "Systems/MachineSystem/MachineParts/ItemSpotMachinePart.h"
-
 #include "Net/UnrealNetwork.h"
-#include "Systems/Interaction System/Components/HighlightComponent.h"
-#include "Systems/PickupDropSystem/HolderComponent/HolderComponent.h"
-#include "Systems/PickupDropSystem/Structs/HeldItem.h"
+#include "CoffeeShopGame/Public/Systems/InteractionSystem/Components/HighlightComponent.h"
+#include "CoffeeShopGame/Public/Systems/InteractionSystem/Components/PromptComponent/ActionEnum.h"
+#include "CoffeeShopGame/Public/Systems/InteractionSystem/Components/PromptComponent/ItemPromptComponent.h"
+#include "CoffeeShopGame/Public/Systems/InteractionSystem/Components/PromptComponent/PromptWidgetBox.h"
+#include "CoffeeShopGame/Public/Systems/HolderSystem/HolderComponent/HolderComponent.h"
+#include "CoffeeShopGame/Public/Systems/HolderSystem/Structs/HeldItem.h"
 
 
 AItemSpotMachinePart::AItemSpotMachinePart()
@@ -35,42 +37,66 @@ void AItemSpotMachinePart::Tick(float DeltaTime)
 	if (OwnerMachine->IsOn()) MachineActiveUpdate(DeltaTime);
 	else MachineInactiveUpdate();
 }
+
 void AItemSpotMachinePart::MachineActiveUpdate(float DeltaTime){}
 void AItemSpotMachinePart::MachineInactiveUpdate(){}
 
-void AItemSpotMachinePart::Hover_Implementation(FInteractionContext Context)
+void AItemSpotMachinePart::Local_StartHover_Implementation(FPlayerContext PlayerContext)
 {
-	IInteractable::Hover_Implementation(Context);
+	IInteractable::Local_StartHover_Implementation(PlayerContext);
 
-	if (!HighlightComponent) return;
-	HighlightComponent->EnableHighlight();
+	
+	if (HighlightComponent) HighlightComponent->EnableHighlight();
+	
+	
+	if (ItemPromptComp) ItemPromptComp->SetVisibility(true);
 }
 
-void AItemSpotMachinePart::Unhover_Implementation(FInteractionContext Context)
+void AItemSpotMachinePart::Local_TickHover_Implementation(FPlayerContext Context, float DeltaTime)
 {
-	IInteractable::Unhover_Implementation(Context);
-
-	if (!HighlightComponent) return;
-	HighlightComponent->DisableHighlight();
+	Super::Local_TickHover_Implementation(Context, DeltaTime);
+	
+	if (!ItemPromptComp) return;
+	
+	UHolderComponent* HolderComp = Context.HolderComponent;
+	if (!HolderComp) return;
+	
+	if (HoldingAnItem && !HolderComp->IsHolding())
+	{
+		ItemPromptComp->GetPromptBox()->SetPrompts({EAction::PickUp});
+	}
+	else if (!HoldingAnItem && HolderComp->IsHolding())
+	{
+		ItemPromptComp->GetPromptBox()->SetPrompts({EAction::PlaceDown});
+	}
 }
 
-bool AItemSpotMachinePart::InteractStarted_Implementation(EActionId ActionId, FInteractionContext Context)
+void AItemSpotMachinePart::Local_EndHover_Implementation(FPlayerContext Context)
 {
-	Super::InteractStarted_Implementation(ActionId, Context);
+	IInteractable::Local_EndHover_Implementation(Context);
+
+	if (HighlightComponent) HighlightComponent->DisableHighlight();
+	
+	ItemPromptComp->GetPromptBox()->ClearPrompts();
+	ItemPromptComp->SetVisibility(false);
+}
+
+bool AItemSpotMachinePart::Server_StartInteraction_Implementation(EActionId ActionId, FPlayerContext Context)
+{
+	Super::Server_StartInteraction_Implementation(ActionId, Context);
 	
 	
 	UHolderComponent* HolderComponent = Context.HolderComponent;
 	if (!HolderComponent) return false;
 	
 	if (ActionId != EActionId::E) return false;
-
+	
 	
 	bool PlayerIsHolding = HolderComponent->IsHolding();
 	
 	if (!ItemAtSpot) PlaceItem(HolderComponent);
 	else if (!PlayerIsHolding) TakeItem(HolderComponent);
 	else SwitchItem(HolderComponent);
-	
 
 	return true;
 }
@@ -90,12 +116,11 @@ bool AItemSpotMachinePart::PlaceItem(UHolderComponent* HolderComponent)
 	
 	if (UStaticMeshComponent* ItemMeshComp = ItemAtSpot->GetMeshComp())
 		ItemMeshComp->SetCollisionResponseToAllChannels(ECR_Ignore);
-	
-	if (bUseOwnSocket && MeshComp->GetSocketByName(OwnSocket))
-		HolderComponent->AttachItemToSocket(MeshComp, OwnSocket);
+
+	if (bUseOwnSocket && BaseMeshComp->GetSocketByName(OwnSocket))
+		HolderComponent->AttachItemToSocket(BaseMeshComp, OwnSocket);
 	else
 		HolderComponent->AttachItemToSocket(OwnerMachine->GetMeshComponent(), ParentSocket);
-	
 
 	return true;
 }
@@ -116,7 +141,7 @@ bool AItemSpotMachinePart::TakeItem(UHolderComponent* HolderComponent)
 	ItemAtSpot = nullptr;
 	HoldingAnItem = false;
 	SwitchingItems = false;
-
+	
 	return true;
 }
 
@@ -131,8 +156,8 @@ bool AItemSpotMachinePart::SwitchItem(UHolderComponent* HolderComponent)
 	UHeldItem* HeldItem = HolderComponent->GetHeldItem();
 	if (!HeldItem) return false;
 	
-	if (bUseOwnSocket && MeshComp->GetSocketByName(OwnSocket))
-		HolderComponent->AttachItemToSocket(MeshComp, OwnSocket);
+	if (bUseOwnSocket && BaseMeshComp->GetSocketByName(OwnSocket))
+		HolderComponent->AttachItemToSocket(BaseMeshComp, OwnSocket);
 	else
 		HolderComponent->AttachItemToSocket(OwnerMachine->GetMeshComponent(), ParentSocket);
 	
@@ -156,7 +181,6 @@ bool AItemSpotMachinePart::SwitchItem(UHolderComponent* HolderComponent)
 	if (UStaticMeshComponent* ItemMeshComp = ItemAtSpot->GetMeshComp())
 		ItemMeshComp->SetCollisionResponseToAllChannels(ECR_Ignore);
 
-	
 	return true;
 }
 
@@ -228,4 +252,12 @@ void AItemSpotMachinePart::BeginPlaySetupForReplicatedObjects()
 	
 	ItemAtSpot = nullptr;
 	AddReplicatedSubObject(ItemAtSpot);
+}
+
+
+//Utilities
+AActor* AItemSpotMachinePart::GetActorAtSpot()
+{
+	if (!ItemAtSpot) return nullptr;
+	return ItemAtSpot->GetActor();
 }

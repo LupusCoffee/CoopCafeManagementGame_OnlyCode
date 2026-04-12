@@ -2,7 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "Engine/DeveloperSettings.h"
-#include "Systems/Interaction System/DataAssets/HighlightData.h"
+#include "CoffeeShopGame/Public/Systems/InteractionSystem/DataAssets/HighlightData.h"
 #include "HighlightSettings.generated.h"
 
 UCLASS(Config=Game, DefaultConfig, meta=(DisplayName="Highlighting"))

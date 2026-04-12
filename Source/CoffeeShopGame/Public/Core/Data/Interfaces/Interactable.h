@@ -1,8 +1,8 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Systems/Interaction System/Enums/ActionId.h"
-#include "Systems/Interaction System/Structs/InteractionContext.h"
+#include "CoffeeShopGame/Public/Systems/InteractionSystem/Enums/ActionId.h"
+#include "CoffeeShopGame/Public/Systems/InteractionSystem/Structs/PlayerContext.h"
 #include "UObject/Interface.h"
 #include "Interactable.generated.h"
 
@@ -17,18 +17,40 @@ class COFFEESHOPGAME_API IInteractable
 	GENERATED_BODY()
 	
 public:
+	//Local Hover
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
-	void Hover(FInteractionContext Context);
+	void Local_StartHover(FPlayerContext Context);
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
-	void Unhover(FInteractionContext Context);
+	void Local_TickHover(FPlayerContext Context, float DeltaTime);
 	
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
-	bool InteractStarted(EActionId ActionId, FInteractionContext Context);
+	void Local_EndHover(FPlayerContext Context);
+	
+	
+	//Local Interaction
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
+	bool Local_StartInteraction(EActionId ActionId, FPlayerContext Context);
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
-	bool InteractOngoing(EActionId ActionId, FInteractionContext Context);
+	bool Local_TickInteraction(EActionId ActionId, FPlayerContext Context, float DeltaTime);
 	
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
-	bool InteractCompleted(EActionId ActionId, FInteractionContext Context);
+	bool Local_EndInteraction(EActionId ActionId, FPlayerContext Context);
+	
+	
+	//Server Interaction
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
+	bool Server_StartInteraction(EActionId ActionId, FPlayerContext Context);
+
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
+	bool Server_TickInteraction(EActionId ActionId, FPlayerContext Context, float DeltaTime);
+	
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
+	bool Server_EndInteraction(EActionId ActionId, FPlayerContext Context);
+	
+	
+	//AI Interaction
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
+	void AIInteract(APawn* Agent);
 };

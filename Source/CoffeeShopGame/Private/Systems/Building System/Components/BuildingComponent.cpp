@@ -1,11 +1,11 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "Systems/Building System/Components/BuildingComponent.h"
+#include "CoffeeShopGame/Public/Systems/BuildingSystem/Components/BuildingComponent.h"
 #include "Core/Framework/Subsystems/LookTraceSubsystem.h"
-#include "Systems/Building System/Actors/Furniture.h"
-#include "Systems/Building System/Subsystems/BuildingSubsystem.h"
-#include "Systems/Building System/Actors/GridVisualizer.h"
+#include "CoffeeShopGame/Public/Systems/BuildingSystem/Actors/Furniture.h"
+#include "CoffeeShopGame/Public/Systems/BuildingSystem/Subsystems/BuildingSubsystem.h"
+#include "CoffeeShopGame/Public/Systems/BuildingSystem/Actors/GridVisualizer.h"
 #include "Net/UnrealNetwork.h"
 #include "Kismet/GameplayStatics.h"
 
@@ -99,7 +99,10 @@ void UBuildingComponent::SetPreviewMesh()
 		return;
 
 	if (!Furniture)
+	{
 		PreviewActor->SetActorHiddenInGame(true);
+		GridVisualizer->EnablePreview(false);
+	}
 	else
 	{
 		PreviewActor->SetActorHiddenInGame(false);
@@ -112,6 +115,13 @@ void UBuildingComponent::SetPreviewMesh()
 
 bool UBuildingComponent::ResetBuildingPreview(FVector LookAtLocation, FVector& OutPlaceLocation)
 {
+	bOnGrid = false;
+	if (BuildingSubsystem->GetClosestLocation(LookAtLocation, PlaceLocation))
+	{
+		PlaceLocation.Z = LookAtLocation.Z;
+		bOnGrid = true;
+	}
+
 	if (PlaceLocation == FVector::ZeroVector || !bOnGrid)
 		return false;
 
@@ -123,8 +133,6 @@ bool UBuildingComponent::ResetBuildingPreview(FVector LookAtLocation, FVector& O
 	Furniture = nullptr;
 	if (GetOwner()->HasAuthority() && Player->IsLocallyControlled())
 		SetPreviewMesh();
-
-	GridVisualizer->EnablePreview(false);
 
 	OutPlaceLocation = PlaceLocation + Offset;
 	return true;

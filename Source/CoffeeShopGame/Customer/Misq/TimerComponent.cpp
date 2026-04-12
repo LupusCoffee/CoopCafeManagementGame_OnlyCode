@@ -38,40 +38,44 @@ void UTimerComponent::StartTimer(float DurationSeconds)
 
 void UTimerComponent::AddTime(float DeltaSeconds)
 {
-    if (!bIsRunning) return;
-
-    EndTimeSeconds += DeltaSeconds;
-
-    // If end time moved past now (negative remaining), fire immediately
-    float Rem = GetRemainingTime();
-    if (Rem <= 0.0f)
+    if (bIsRunning)
     {
-        // Cancel and call finish
-        GetWorld()->GetTimerManager().ClearTimer(FinishHandle);
-        OnFinishTimerFired();
-        return;
-    }
+        EndTimeSeconds += DeltaSeconds;
 
-    // Reset finish timer with updated remaining time
-    ScheduleFinishTimer();
+        float Rem = GetRemainingTime();
+        if (Rem <= 0.0f)
+        {
+            // Adding negative time pushed us past the end — finish immediately
+            GetWorld()->GetTimerManager().ClearTimer(FinishHandle);
+            OnFinishTimerFired();
+            return;
+        }
+
+        // Reschedule the finish callback to the new end time
+        ScheduleFinishTimer();
+    }
+    else
+    {
+        // Paused — just shift the frozen remaining time
+        PausedRemainingSeconds = FMath::Max(0.0f, PausedRemainingSeconds + DeltaSeconds);
+    }
 }
 
 void UTimerComponent::PauseTimer()
 {
     if (!bIsRunning || !GetWorld()) return;
     // Clear finish timer but keep EndTime relative? Simpler: compute remaining and store it, mark paused.
-    float remaining = GetRemainingTime();
+    PausedRemainingSeconds = GetRemainingTime();
     GetWorld()->GetTimerManager().ClearTimer(FinishHandle);
     GetWorld()->GetTimerManager().ClearTimer(UITickHandle);
     bIsRunning = false;
-    EndTimeSeconds = NowSeconds() + remaining; // keep EndTime consistent (but bIsRunning false)
 }
 
 void UTimerComponent::ResumeTimer()
 {
     if (bIsRunning || !GetWorld()) return;
     bIsRunning = true;
-    // EndTimeSeconds already stores (Now + remaining) from PauseTimer — but if you used a different method, set appropriately
+    EndTimeSeconds = NowSeconds() + PausedRemainingSeconds;
     ScheduleFinishTimer();
     if (!UITickHandle.IsValid())
     {
@@ -81,7 +85,7 @@ void UTimerComponent::ResumeTimer()
 
 float UTimerComponent::GetRemainingTime() const
 {
-    if (!bIsRunning) return 0.0f;
+    if (!bIsRunning) return PausedRemainingSeconds;
     return FMath::Max(0.0f, EndTimeSeconds - NowSeconds());
 }
 
@@ -110,6 +114,8 @@ void UTimerComponent::ScheduleFinishTimer()
 
 void UTimerComponent::OnFinishTimerFired()
 {
+    if (!GetWorld()) return;
+    
     bIsRunning = false;
     GetWorld()->GetTimerManager().ClearTimer(FinishHandle);
     GetWorld()->GetTimerManager().ClearTimer(UITickHandle);

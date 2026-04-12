@@ -6,8 +6,11 @@
 #include "Systems/StatModificationSystem/StatMod.h"
 #include "VinylRecord.generated.h"
 
+class UHoldableComponent;
+class UAkAudioEvent;
+
 UCLASS()
-class COFFEESHOPGAME_API AVinylRecord : public AHoldableItem
+class COFFEESHOPGAME_API AVinylRecord : public AActor
 {
 	GENERATED_BODY()
 
@@ -21,18 +24,35 @@ public:
 	TSubclassOf<UStatImpulse> GetStatImpulse();
 	
 	UFUNCTION()
-	USoundBase* GetSong();
+	UAkAudioEvent* GetPlayEvent();
+
+	UFUNCTION()
+	UAkAudioEvent* GetStopEvent();
 
 protected:
+	//Variables --> Components
+	UPROPERTY(EditAnywhere)
+	UMeshComponent* MeshComp = nullptr;
+	
+	UPROPERTY(EditAnywhere)
+	UHighlightComponent* HighlightComponent = nullptr;
+
+	UPROPERTY(EditAnywhere)
+	UHoldableComponent* HoldableComponent = nullptr;
+	
+	
+	//Variables --> Logic
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Settings")
 	FString SongName = "";
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Settings")
 	FString EffectDescription = "";
 
-	//wwise event to play
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Settings")
-	USoundBase* Song = nullptr;
+	UAkAudioEvent* PlayEvent = nullptr;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Settings")
+	UAkAudioEvent* StopEvent = nullptr;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Settings")
 	TSubclassOf<UStatMod> StatMod = nullptr;

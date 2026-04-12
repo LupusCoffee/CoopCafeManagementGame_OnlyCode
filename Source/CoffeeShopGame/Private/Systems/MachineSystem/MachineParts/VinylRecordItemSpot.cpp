@@ -1,6 +1,4 @@
 #include "Systems/MachineSystem/MachineParts/VinylRecordItemSpot.h"
-
-#include "Systems/Items/Components/MusicPlayerComponent.h"
 #include "Systems/MachineSystem/SpecificMachines/VinylPlayerMachine.h"
 
 
@@ -38,8 +36,22 @@ bool AVinylRecordItemSpot::TakeItem(UHolderComponent* HolderComponent)
 	if (!VinylPlayerOwnerMachine) return false;
 
 	VinylRecordAtSpot = nullptr;
-	VinylPlayerOwnerMachine->SetVinylRecord(VinylRecordAtSpot);
+	VinylPlayerOwnerMachine->RemoveVinylRecord();
 
 	return true;
 }
 
+bool AVinylRecordItemSpot::SwitchItem(UHolderComponent* HolderComponent)
+{
+	if (!Super::SwitchItem(HolderComponent)) return false;
+	
+	if (!VinylPlayerOwnerMachine) return false;
+	
+	VinylRecordAtSpot = nullptr;
+	VinylPlayerOwnerMachine->RemoveVinylRecord();
+	
+	VinylRecordAtSpot = Cast<AVinylRecord>(ItemAtSpot->GetActor());
+	VinylPlayerOwnerMachine->SetVinylRecord(VinylRecordAtSpot);
+	
+	return true;
+}
