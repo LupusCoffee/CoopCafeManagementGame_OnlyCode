@@ -1,11 +1,11 @@
 #include "CoffeeShopGame/Public/Systems/HolderSystem/Structs/HeldItem.h"
 #include "Net/UnrealNetwork.h"
 
-void UHeldItem::Init(AActor* _Actor, UStaticMeshComponent* _MeshComp, UPrimitiveComponent* _PrimitiveComponent)
+void UHeldItem::Init(AActor* InActor, UStaticMeshComponent* InMeshComp, UPrimitiveComponent* InPrimitiveComponent)
 {
-	Actor = _Actor;
-	MeshComp = _MeshComp;
-	PrimitiveComponent = _PrimitiveComponent;
+	Actor = InActor;
+	MeshComp = InMeshComp;
+	PrimitiveComponent = InPrimitiveComponent;
 
 	if (MeshComp) InitialCollisionResponses = MeshComp->GetCollisionResponseToChannels();
 	if (PrimitiveComponent)	bInitiallyHadPhysics = PrimitiveComponent->IsSimulatingPhysics();
