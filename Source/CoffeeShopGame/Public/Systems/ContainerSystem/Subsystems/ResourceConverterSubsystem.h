@@ -107,7 +107,7 @@ public:
 	EResourceType TryGetGrindConversionOutputResource(EResourceType InputResourceType);
 	
 
-	//Methods --> Miscellanious
+	//Methods --> Miscellaneous
 	UFUNCTION(BlueprintCallable)
 	bool TryMoveContent(float AmountToMove, UContainerObject* ContainerA, UContainerObject* ContainerB);
 
