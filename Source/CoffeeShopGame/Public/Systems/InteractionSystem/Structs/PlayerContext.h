@@ -58,16 +58,16 @@ struct FPlayerContext
 
 	//Constructor
 	FPlayerContext() = default;
-	FPlayerContext(APlayerCharacter* _Instigator, AController* _InstigatorController,
-		UCharacterMovementComponent* _MovementComponent, UInteractionComponent* _InteractionComponent, UHolderComponent* _HolderComponent,
+	FPlayerContext(APlayerCharacter* InInstigator, AController* InInstigatorController,
+		UCharacterMovementComponent* InMovementComponent, UInteractionComponent* InInteractionComponent, UHolderComponent* InHolderComponent,
 		AActor* InLookedAtActor, FVector InLookedAtLocation)
 	{
-		Interactor = _Instigator;
-		InteractorController = _InstigatorController;
+		Interactor = InInstigator;
+		InteractorController = InInstigatorController;
 		
-		InteractionComponent = _InteractionComponent;
-		HolderComponent = _HolderComponent;
-		MovementComponent = _MovementComponent;
+		InteractionComponent = InInteractionComponent;
+		HolderComponent = InHolderComponent;
+		MovementComponent = InMovementComponent;
 		
 		LookedAtActor = InLookedAtActor;
 		LookedAtLocation = InLookedAtLocation;
