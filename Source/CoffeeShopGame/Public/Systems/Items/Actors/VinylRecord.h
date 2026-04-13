@@ -10,7 +10,7 @@ class UHoldableComponent;
 class UAkAudioEvent;
 
 UCLASS()
-class COFFEESHOPGAME_API AVinylRecord : public AActor
+class COFFEESHOPGAME_API AVinylRecord : public AHoldableItem
 {
 	GENERATED_BODY()
 
@@ -30,17 +30,6 @@ public:
 	UAkAudioEvent* GetStopEvent();
 
 protected:
-	//Variables --> Components
-	UPROPERTY(EditAnywhere)
-	UMeshComponent* MeshComp = nullptr;
-	
-	UPROPERTY(EditAnywhere)
-	UHighlightComponent* HighlightComponent = nullptr;
-
-	UPROPERTY(EditAnywhere)
-	UHoldableComponent* HoldableComponent = nullptr;
-	
-	
 	//Variables --> Logic
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Settings")
 	FString SongName = "";
