@@ -21,7 +21,7 @@ public:
 	UContainerObject();
 
 	UFUNCTION(BlueprintCallable)
-	bool SetupData(bool InAccpetsAllResources, TArray<EResourceType> InAcceptedResourceTypes, float InMaxVolume, TArray<FResourceAmount> StarterContents);
+	bool SetupData(bool InAcceptsAllResources, TArray<EResourceType> InAcceptedResourceTypes, float InMaxVolume, TArray<FResourceAmount> StarterContents);
 	
 	
 	//Methods --> Adders, Removers, Setters, etc.
