@@ -1,7 +1,4 @@
 #include "CoffeeShopGame/Public/Systems/InteractionSystem/Components/PromptComponent/ItemPromptComponent.h"
-
-#include "MovieSceneTracksComponentTypes.h"
-#include "DynamicMesh/DynamicMesh3.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "CoffeeShopGame/Public/Systems/InteractionSystem/Components/PromptComponent/ActionPromptSubsystem.h"
 #include "CoffeeShopGame/Public/Systems/InteractionSystem/Components/PromptComponent/PromptWidgetBox.h"
