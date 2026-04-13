@@ -41,13 +41,13 @@ public:
 
 	//Methods --> Throw Item, Replicated
 	UFUNCTION(BlueprintCallable, Category="Thrower")
-	void ThrowItem(AController* _Controller, float ThrowForce);
+	void ThrowItem(AController* InController, float ThrowForce);
 
 	UFUNCTION()
-	FVector GetPreThrowLocation(AActor* HeldItemActor, AController* _Controller);
+	FVector GetPreThrowLocation(AActor* HeldItemActor, AController* InController);
 	
 	UFUNCTION()
-	FVector GetThrowDir(AController* _Controller);
+	FVector GetThrowDir(AController* InController);
 
 	UFUNCTION(BLueprintCallable, Category="Thrower")
 	void ServerSide_ThrowItemStart();
