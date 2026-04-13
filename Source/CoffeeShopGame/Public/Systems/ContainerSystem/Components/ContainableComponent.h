@@ -205,16 +205,16 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category="Containable")
 	TObjectPtr<UNiagaraComponent> NiagaraComponent = nullptr;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Containable | Pouring | tracing stuff")	//should not be here - only wanna set once
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Containable | Pouring | tracing stuff")
 	float HeldPouringHeight = 30;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Containable | Pouring | tracing stuff")	//should not be here - only wanna set once
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Containable | Pouring | tracing stuff")
 	float PourDownTraceLength = 200.0f;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Containable | Pouring | tracing stuff")	//should not be here - only wanna set once
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Containable | Pouring | tracing stuff")
 	float PourDownTraceRadius = 1.0f;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Containable | Pouring | tracing stuff")	//should not be here - only wanna set once
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Containable | Pouring | tracing stuff")
 	TEnumAsByte<ECollisionChannel> PourDownTraceChannel = ECollisionChannel::ECC_Visibility;
 
 	//Variables, Pouring (Dynamic)
