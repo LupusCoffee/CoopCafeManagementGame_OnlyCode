@@ -13,7 +13,7 @@ public:
 
 	//Init
 	UFUNCTION()
-	void Init(AActor* _Actor, UStaticMeshComponent* _MeshComp, UPrimitiveComponent* _PrimitiveComponent);
+	void Init(AActor* InActor, UStaticMeshComponent* InMeshComp, UPrimitiveComponent* InPrimitiveComponent);
 
 	//Getters
 	UFUNCTION()
