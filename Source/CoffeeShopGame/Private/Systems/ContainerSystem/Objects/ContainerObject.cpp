@@ -223,8 +223,6 @@ bool UContainerObject::IsFull()
 {
 	if (CurrentTotalVolume >= MaxVolume) bIsFull = true;
 	else bIsFull = false;
-
-	if (bIsFull) GEngine->AddOnScreenDebugMessage(-1, 2.0, FColor::Red, "FUUUUUUUUUUUUUUUUUUUUUUUUUULL");
 	
 	return bIsFull;
 }
