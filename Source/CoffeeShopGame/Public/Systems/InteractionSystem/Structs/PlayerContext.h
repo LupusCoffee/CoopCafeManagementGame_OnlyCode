@@ -55,8 +55,6 @@ struct FPlayerContext
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="General")
 	FVector LookedAtLocation;
 	
-	//Current Highlight Component
-	
 
 	//Constructor
 	FPlayerContext() = default;
