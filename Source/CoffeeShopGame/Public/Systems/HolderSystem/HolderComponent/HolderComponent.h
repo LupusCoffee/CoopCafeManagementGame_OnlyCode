@@ -4,7 +4,6 @@
 #include "Components/ActorComponent.h"
 #include "CoffeeShopGame/Public/Systems/HolderSystem/Structs/HeldItem.h"
 #include "HolderComponent.generated.h"
-class ULookTraceSubsystem;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnInteract, UHeldItem*, HeldItem);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnThrowEvent);
@@ -19,12 +18,12 @@ public:
 	UHolderComponent();
 
 	//Methods --> Pick Up Item, Replicated
-	UFUNCTION(BlueprintCallable, Category="Holder") //perhaps this should be removed?
+	UFUNCTION(BlueprintCallable, Category="Holder")
 	void PickUpItem(UHeldItem* ItemToPickUp);
 
 	
 	//Methods --> Drop Item, Replicated
-	UFUNCTION(BlueprintCallable, Category="Holder")	//perhaps this should be removed?
+	UFUNCTION(BlueprintCallable, Category="Holder")
 	void DropItem(FVector InLookedAtLocation);
 
 
@@ -39,7 +38,7 @@ public:
 	void ReattachItemStillAsHeld();
 	
 
-	//Methods --> Throw Item, Replicated --> todo: refactor this a lil bit (_controller and GetThrowDir in ServerThrowItem smh)
+	//Methods --> Throw Item, Replicated
 	UFUNCTION(BlueprintCallable, Category="Thrower")
 	void ThrowItem(AController* _Controller, float ThrowForce);
 
