@@ -6,18 +6,6 @@
 AVinylRecord::AVinylRecord()
 {
 	PrimaryActorTick.bCanEverTick = false;
-
-	//Creation
-	RootComponent = CreateDefaultSubobject<USceneComponent>(TEXT("Root"));
-	MeshComp = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("MeshComp"));
-	HighlightComponent = CreateDefaultSubobject<UHighlightComponent>(TEXT("HighlightComponent"));
-	HoldableComponent = CreateDefaultSubobject<UHoldableComponent>(TEXT("HoldableComponent"));
-
-	//Attachments
-	MeshComp->SetupAttachment(GetRootComponent());
-
-	//Default Variables
-	MeshComp->SetSimulatePhysics(true);
 }
 
 TSubclassOf<UStatMod> AVinylRecord::GetStatMod()
