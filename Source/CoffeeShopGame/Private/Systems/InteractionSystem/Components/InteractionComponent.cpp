@@ -47,7 +47,7 @@ void UInteractionComponent::TickComponent(float DeltaTime, enum ELevelTick TickT
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 	
-	//tick hover --> make into function
+	//tick hover
 	if (HoveringActor) IInteractable::Execute_Local_TickHover(HoveringActor, PlayerContext, DeltaTime);
 	for (UActorComponent* HoveredComp : HoveredComponents)
 	{
