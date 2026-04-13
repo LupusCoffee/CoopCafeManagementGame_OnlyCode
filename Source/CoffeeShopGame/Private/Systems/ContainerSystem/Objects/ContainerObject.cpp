@@ -18,10 +18,10 @@ UContainerObject::UContainerObject()
 	CurrentVolumeMap = {};
 }
 
-bool UContainerObject::SetupData(bool InAccpetsAllResources, TArray<EResourceType> InAcceptedResourceTypes,
+bool UContainerObject::SetupData(bool InAcceptsAllResources, TArray<EResourceType> InAcceptedResourceTypes,
 	float InMaxVolume, TArray<FResourceAmount> StarterContents)
 {	
-	bAcceptsAllResources = InAccpetsAllResources;
+	bAcceptsAllResources = InAcceptsAllResources;
 	AcceptedResourceTypes = InAcceptedResourceTypes;
 	MaxVolume = InMaxVolume;
 	
