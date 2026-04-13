@@ -71,7 +71,7 @@ void UHolderComponent::PickUpItem(UHeldItem* ItemToPickUp)
 	AActor* HeldItemActor = HeldItem->GetActor();
 	if (!HeldItemActor) return;
 
-	//turn off physics if it has it - todo: make into function?
+	//turn off physics if it has it
 	if (UPrimitiveComponent* PrimitiveComponent = HeldItem->GetPrimitiveComponent())
 	{
 		Multicast_UpdatePrimitiveComponentPhysicsAndCollision(PrimitiveComponent, HeldItem->InitiallyHadPhysics(),
@@ -119,7 +119,7 @@ void UHolderComponent::DropItem(FVector InLookedAtLocation)
 	HeldItemActor->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
 	HeldItemActor->SetActorLocation(LookedAtLocation);
 	
-	//turn on physics if it had it - todo: make into function?
+	//turn on physics if it had it
 	if (UPrimitiveComponent* PrimitiveComponent = HeldItem->GetPrimitiveComponent())
 	{
 		Multicast_UpdatePrimitiveComponentPhysicsAndCollision(PrimitiveComponent, HeldItem->InitiallyHadPhysics(),
@@ -256,7 +256,7 @@ void UHolderComponent::ThrowItem(AController* _Controller, float ThrowForce)
 	HeldItemActor->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
 
 	//Set Location Before Throw
-	FVector PreThrowLoc = GetPreThrowLocation(HeldItemActor, _Controller); //hmmmm --> todo: dont wanna calculate this on server
+	FVector PreThrowLoc = GetPreThrowLocation(HeldItemActor, _Controller);
 	HeldItemActor->SetActorLocation(PreThrowLoc);
 	
 	//turn on physics
@@ -301,7 +301,7 @@ FVector UHolderComponent::GetPreThrowLocation(AActor* HeldItemActor, AController
 	_Controller->GetPlayerViewPoint(ViewLocation, ViewRotation);
 	FVector LookedAtDirection = ViewRotation.Vector();
 
-	//set start pos - todo: set it to right in front of camera always (or??)
+	//set start pos
 	float StartPosX = ViewLocation.X + LookedAtDirection.X * ForwardStartPos;
 	float StartPosY = ViewLocation.Y + LookedAtDirection.Y * ForwardStartPos;
 	float StartPosZ = HeldItemActor->GetActorLocation().Z;
@@ -312,7 +312,7 @@ FVector UHolderComponent::GetPreThrowLocation(AActor* HeldItemActor, AController
 
 
 //Getters
-FVector UHolderComponent::GetLookedAtSurfaceLocation()	//might wanna do all of this from a single component?
+FVector UHolderComponent::GetLookedAtSurfaceLocation()
 {
 	if (!LookTraceSubsystem) return FVector::ZeroVector;
 
