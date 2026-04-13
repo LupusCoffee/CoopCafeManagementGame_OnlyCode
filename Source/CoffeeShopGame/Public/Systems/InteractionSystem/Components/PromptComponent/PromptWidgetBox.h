@@ -1,8 +1,8 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "ActionEnum.h"
 #include "Blueprint/UserWidget.h"
-#include "CoffeeShopGame/Public/Systems/InteractionSystem/Components/PromptComponent/ItemPromptComponent.h"
 #include "PromptWidgetBox.generated.h"
 class UActionPromptsData;
 
