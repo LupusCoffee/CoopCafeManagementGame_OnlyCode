@@ -163,7 +163,7 @@ void UContainerObject::ZeroVolume()
 float UContainerObject::ZeroSpecificVolume(EResourceType ResourceTypeToZero)
 {
 	int i = FindByResourceTypeOrAdd(ResourceTypeToZero);
-	int AmountRemoved = CurrentVolumeMap[i].Amount;
+	float AmountRemoved = CurrentVolumeMap[i].Amount;
 	CurrentVolumeMap[i].Amount = 0;
 
 	UpdateTotalVolume();
