@@ -31,13 +31,11 @@ void UHighlightComponent::BeginPlay()
 //Enabled / Disable
 void UHighlightComponent::EnableHighlight()
 {
-	//todo: StencilIDs should be sent as an argument in "EnableHighlight" if we are ever to highlight multiple objects
-
 	if (!bCanHighlight) return;
 	
 	if (HighlightedMesh && HighlightRegistry)
 	{
-		HighlightRegistry->UpdateHighlightMaterial(ActorType);			//for the future, each highlight component CANNOT update the highlight mat in PostProcessSubsystem --> yuckie
+		HighlightRegistry->UpdateHighlightMaterial(ActorType);
 		HighlightedMesh->SetRenderCustomDepth(true);
 	}
 }
