@@ -2,11 +2,8 @@
 
 #include "CoreMinimal.h"
 #include "Core/Data/Enums/ActorType.h"
-#include "Subsystems/GameInstanceSubsystem.h"
 #include "HighlightRegistrySubsystem.generated.h"
 class UHighlightSettings;
-
-//todo: StencilIDs should be used for highlighting multiple objects with different colors --> once the time comes, not now
 
 UCLASS()
 class COFFEESHOPGAME_API UHighlightRegistrySubsystem : public UWorldSubsystem
