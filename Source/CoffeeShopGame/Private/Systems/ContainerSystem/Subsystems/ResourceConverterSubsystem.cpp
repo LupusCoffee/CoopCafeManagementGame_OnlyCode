@@ -377,7 +377,6 @@ bool UResourceConverterSubsystem::TryMoveContent(float AmountToMove, UContainerO
 	}
 
 
-	//todo: remove equal amount from all in current volume map!!
 	for (auto& ResourceAmount : ContainerA->GetCurrentVolumeMap())
 	{
 		if (CurrentValueToMove <= 0.0f) break;
