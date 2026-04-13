@@ -238,13 +238,13 @@ void UHolderComponent::Client_ThrowItemCompleted_Implementation()
 	OwnerClient_OnThrowEnd.Broadcast();
 }
 
-void UHolderComponent::ThrowItem(AController* _Controller, float ThrowForce)
+void UHolderComponent::ThrowItem(AController* InController, float ThrowForce)
 {
 	if (!HeldItem) return;
 	if (!HeldItem->InitiallyHadPhysics()) return;
-	if (!_Controller) return;
+	if (!InController) return;
 
-	FVector ThrowDir = GetThrowDir(_Controller);
+	FVector ThrowDir = GetThrowDir(InController);
 	
 	AActor* HeldItemActor = HeldItem->GetActor();
 	if (!HeldItemActor) return;
@@ -256,7 +256,7 @@ void UHolderComponent::ThrowItem(AController* _Controller, float ThrowForce)
 	HeldItemActor->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
 
 	//Set Location Before Throw
-	FVector PreThrowLoc = GetPreThrowLocation(HeldItemActor, _Controller);
+	FVector PreThrowLoc = GetPreThrowLocation(HeldItemActor, InController);
 	HeldItemActor->SetActorLocation(PreThrowLoc);
 	
 	//turn on physics
@@ -275,12 +275,12 @@ void UHolderComponent::ThrowItem(AController* _Controller, float ThrowForce)
 	bIsAttaching = false;
 }
 
-FVector UHolderComponent::GetThrowDir(AController* _Controller)
+FVector UHolderComponent::GetThrowDir(AController* InController)
 {
 	//calculate view location and rotation
 	FVector ViewLocation;
 	FRotator ViewRotation;
-	_Controller->GetPlayerViewPoint(ViewLocation, ViewRotation);
+	InController->GetPlayerViewPoint(ViewLocation, ViewRotation);
 	FVector LookedAtDirection = ViewRotation.Vector();
 
 	//set throw dir
@@ -291,14 +291,14 @@ FVector UHolderComponent::GetThrowDir(AController* _Controller)
 	return ThrowDir;
 }
 
-FVector UHolderComponent::GetPreThrowLocation(AActor* HeldItemActor, AController* _Controller)
+FVector UHolderComponent::GetPreThrowLocation(AActor* HeldItemActor, AController* InController)
 {
-	if (!_Controller) return FVector::ZeroVector;
+	if (!InController) return FVector::ZeroVector;
 	
 	//calculate view location and rotation
 	FVector ViewLocation;
 	FRotator ViewRotation;
-	_Controller->GetPlayerViewPoint(ViewLocation, ViewRotation);
+	InController->GetPlayerViewPoint(ViewLocation, ViewRotation);
 	FVector LookedAtDirection = ViewRotation.Vector();
 
 	//set start pos
