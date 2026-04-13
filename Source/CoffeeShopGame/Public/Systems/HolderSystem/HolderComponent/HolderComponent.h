@@ -4,6 +4,7 @@
 #include "Components/ActorComponent.h"
 #include "CoffeeShopGame/Public/Systems/HolderSystem/Structs/HeldItem.h"
 #include "HolderComponent.generated.h"
+class ULookTraceSubsystem;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnInteract, UHeldItem*, HeldItem);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnThrowEvent);
