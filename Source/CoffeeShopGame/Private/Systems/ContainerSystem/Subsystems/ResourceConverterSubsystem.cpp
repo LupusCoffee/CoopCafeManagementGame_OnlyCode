@@ -166,7 +166,6 @@ FRecipe UResourceConverterSubsystem::BreakDownRecipe(FRecipe InRecipe)
 		}
 		
 		//find resource data as a recipe result and break down --> then break
-		//todo: make into a function
 		bool ResourceDataAsRecipeResultFound = false;
 		for (auto RecipeData : AvailableRecipesData->Recipes)
 		{
@@ -344,7 +343,7 @@ EResourceType UResourceConverterSubsystem::TryGetGrindConversionOutputResource(E
 
 
 
-#pragma region Miscelanious Functions
+#pragma region Miscellaneous Functions
 //will return true only if EVERYTHING could be moved
 bool UResourceConverterSubsystem::TryMoveContent(float AmountToMove, UContainerObject* ContainerA, UContainerObject* ContainerB)
 {
@@ -373,9 +372,6 @@ bool UResourceConverterSubsystem::TryMoveContent(float AmountToMove, UContainerO
 		{
 			float ExcessAmountA = 0.0f;
 			ContainerA->TryAddVolume(ResourceType, ExcessAmountB, ExcessAmountA, false);
-			/*float RemovedExcessB = 0.0f;
-			ContainerB->RemoveSpecificVolume(ResourceType, ExcessAmountB, RemovedExcessB);*/
-			
 			return false;
 		}
 	}
