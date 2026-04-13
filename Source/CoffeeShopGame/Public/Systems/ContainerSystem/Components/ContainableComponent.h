@@ -13,10 +13,10 @@ class UContainerObject;
 class UResourceConverterSubsystem;
 class UNiagaraComponent;
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnPourStart2, AActor*, PourInteractor);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnPourEnd2);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnAddVolume2, bool, bSuccess, float, PouredVolume);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnContainerEmpty2);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnPourStart, AActor*, PourInteractor);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnPourEnd);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnAddVolume, bool, bSuccess, float, PouredVolume);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnContainerEmpty);
 
 
 //main
@@ -115,19 +115,19 @@ public:
 
 	//Delegates
 	UPROPERTY(BlueprintAssignable)
-	FOnPourStart2 OnStartPour;
+	FOnPourStart OnStartPour;
 
 	UPROPERTY(BlueprintAssignable)
-	FOnPourEnd2 OnEndPour;
+	FOnPourEnd OnEndPour;
 
 	UPROPERTY(BlueprintAssignable)
-	FOnAddVolume2 OnAddVolume;
+	FOnAddVolume OnAddVolume;
 
 	UPROPERTY(BlueprintAssignable)
-	FOnContainerEmpty2 OnContainerEmpty;
+	FOnContainerEmpty OnContainerEmpty;
 
 	UPROPERTY(BlueprintAssignable)
-	FOnContainerEmpty2 OnContainerNotEmpty;
+	FOnContainerEmpty OnContainerNotEmpty;
 
 	
 protected:
