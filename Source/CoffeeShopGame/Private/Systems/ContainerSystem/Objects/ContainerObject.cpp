@@ -86,7 +86,6 @@ void UContainerObject::RemoveVolumeSequentially(float Value)
 
 	float CurrentValueToRemove = Value;
 	
-	//todo: remove equal amount from all in current volume map!!
 	for (auto& ResourceStack : CurrentVolumeMap)
 	{
 		if (CurrentValueToRemove <= 0.0f) break;
@@ -108,7 +107,6 @@ TArray<FResourceAmount> UContainerObject::TakeVolumeSequentially(float Value)
 
 	float CurrentValueToRemove = Value;
 	
-	//todo: remove equal amount from all in current volume map!!
 	for (auto& ResourceStack : CurrentVolumeMap)
 	{
 		if (CurrentValueToRemove <= 0.0f) break;
