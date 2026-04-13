@@ -1,6 +1,4 @@
 #include "Systems/Items/Actors/VinylRecord.h"
-#include "CoffeeShopGame/Public/Systems/InteractionSystem/Components/HighlightComponent.h"
-#include "CoffeeShopGame/Public/Systems/HolderSystem/HolderComponent/HoldableComponent.h"
 
 
 AVinylRecord::AVinylRecord()
