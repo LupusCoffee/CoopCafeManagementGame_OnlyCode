@@ -64,7 +64,7 @@ FLinearColor UHighlightRegistrySubsystem::GetCurrentHighlightColor()
 }
 
 
-//creates and caches material of ActorType if never mentioned before --> kinda useless now lol
+//creates and caches material of ActorType if never mentioned before
 UMaterialInstanceDynamic* UHighlightRegistrySubsystem::GetHighlightMaterial(EActorType ActorType)
 {
 	if (!HighlightSettings) return nullptr;
