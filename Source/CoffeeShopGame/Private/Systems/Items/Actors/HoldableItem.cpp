@@ -2,7 +2,7 @@
 #include "CoffeeShopGame/Public/Systems/HolderSystem/HolderComponent/HoldableComponent.h"
 
 
-//Core Shtuff
+//Core
 AHoldableItem::AHoldableItem()
 {
 	PrimaryActorTick.bCanEverTick = false;
