@@ -1,6 +1,6 @@
 #include "Systems/Items/Actors/InteractableActor.h"
-#include "Systems/Interaction System/Components/HighlightComponent.h"
-#include "Systems/Interaction System/Components/PromptComponent/ItemPromptComponent.h"
+#include "Systems/InteractionSystem/Components/HighlightComponent.h"
+#include "Systems/InteractionSystem/Components/PromptComponent/ItemPromptComponent.h"
 
 
 //Setup
