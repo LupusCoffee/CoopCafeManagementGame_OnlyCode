@@ -48,14 +48,14 @@ static UBlueprint* GetOwningBlueprint(UActorComponent* Component)
     if (!Class) return nullptr;
 
     UObject* GeneratedBy = Class->ClassGeneratedBy;
-    if (!IsValid(GeneratedBy)) return nullptr;
+    if (!GeneratedBy) return nullptr;
 
     return Cast<UBlueprint>(GeneratedBy);
 }
 
 static bool IsBlueprintSafeToModify(UBlueprint* Blueprint)
 {
-    if (!IsValid(Blueprint)) return false;
+    if (!Blueprint) return false;
     if (!Blueprint->SimpleConstructionScript) return false;
     if (Blueprint->bBeingCompiled) return false;
 
