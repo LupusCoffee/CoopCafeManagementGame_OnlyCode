@@ -35,93 +35,74 @@ UContainableComponent::UContainableComponent()
 	bReplicateUsingRegisteredSubObjectList = true;
 }
 
-// custom editor
+// custom editor stuff
 #if WITH_EDITOR
-
 static UBlueprint* GetOwningBlueprint(UActorComponent* Component)
 {
     if (!Component) return nullptr;
 
-    AActor* TempOwner = Component->GetOwner();
-    if (!TempOwner) return nullptr;
+    AActor* Owner = Component->GetOwner();
+    if (!Owner) return nullptr;
 
-    return Cast<UBlueprint>(TempOwner->GetClass()->ClassGeneratedBy);
+    UClass* Class = Owner->GetClass();
+    if (!Class) return nullptr;
+
+    UObject* GeneratedBy = Class->ClassGeneratedBy;
+    if (!IsValid(GeneratedBy)) return nullptr;
+
+    return Cast<UBlueprint>(GeneratedBy);
+}
+
+static bool IsBlueprintSafeToModify(UBlueprint* Blueprint)
+{
+    if (!IsValid(Blueprint)) return false;
+    if (!Blueprint->SimpleConstructionScript) return false;
+    if (Blueprint->bBeingCompiled) return false;
+
+    return true;
 }
 
 void UContainableComponent::OnComponentCreated()
 {
     Super::OnComponentCreated();
-    QueueEnsurePourAnchorExists();
-	QueueEnsurePourNiagaraExists();
+	
+    EnsurePourAnchorExists();
+    EnsurePourNiagaraExists();
 }
 
 void UContainableComponent::PostEditUndo()
 {
     Super::PostEditUndo();
-    QueueEnsurePourAnchorExists();
-}
-
-void UContainableComponent::QueueEnsurePourAnchorExists()
-{
-    if (bQueuedEnsurePourAnchor) return;
-
-    UWorld* World = GetWorld();
-    if (!World) return;
-
-    bQueuedEnsurePourAnchor = true;
-
-    World->GetTimerManager().SetTimerForNextTick([this]()
-    {
-        bQueuedEnsurePourAnchor = false;
-
-        if (!IsValid(this)) return;
-
-        EnsurePourAnchorExists();
-    });
+	
+    EnsurePourAnchorExists();
 }
 
 void UContainableComponent::EnsurePourAnchorExists()
 {
     if (bIsEnsuringPourAnchor) return;
-    bIsEnsuringPourAnchor = true;
-
-    AActor* TempOwner = GetOwner();
-    if (!TempOwner)
-    {
-        bIsEnsuringPourAnchor = false;
-        return;
-    }
 
     UBlueprint* Blueprint = GetOwningBlueprint(this);
-    if (!Blueprint)
-    {
-        bIsEnsuringPourAnchor = false;
-        return;
-    }
+    if (!IsBlueprintSafeToModify(Blueprint)) return;
 
+	
+    bIsEnsuringPourAnchor = true;
+
+	
     USimpleConstructionScript* SCS = Blueprint->SimpleConstructionScript;
-    if (!SCS)
+    for (USCS_Node* Node : SCS->GetAllNodes())
     {
-        bIsEnsuringPourAnchor = false;
-        return;
+        if (!Node) continue;
+
+        const FString Name = Node->GetVariableName().ToString();
+        if (Name == TEXT("PourAnchor") || Name.StartsWith(TEXT("PourAnchor_")))
+        {
+            PourAnchorName = Node->GetVariableName();
+            bIsEnsuringPourAnchor = false;
+            return;
+        }
     }
 
-	for (USCS_Node* Node : SCS->GetAllNodes())
-	{
-		if (!Node) continue;
-
-		const FString Name = Node->GetVariableName().ToString();
-
-		if (Name == TEXT("PourAnchor") || Name.StartsWith(TEXT("PourAnchor_")))
-		{
-			// Recover the name if we lost it
-			PourAnchorName = Node->GetVariableName();
-
-			bIsEnsuringPourAnchor = false;
-			return;
-		}
-	}
-
+	
     USCS_Node* NewNode = SCS->CreateNode(USceneComponent::StaticClass(), TEXT("PourAnchor"));
     if (!NewNode)
     {
@@ -129,102 +110,57 @@ void UContainableComponent::EnsurePourAnchorExists()
         return;
     }
 
+	
     PourAnchorName = NewNode->GetVariableName();
+    if (USCS_Node* RootNode = SCS->GetDefaultSceneRootNode()) RootNode->AddChildNode(NewNode);
+    else SCS->AddNode(NewNode);
 
-    if (USCS_Node* RootNode = SCS->GetDefaultSceneRootNode())
-    {
-        RootNode->AddChildNode(NewNode);
-    }
-    else
-    {
-        SCS->AddNode(NewNode);
-    }
-
+	
     FBlueprintEditorUtils::MarkBlueprintAsStructurallyModified(Blueprint);
-
     bIsEnsuringPourAnchor = false;
-}
-
-void UContainableComponent::QueueEnsurePourNiagaraExists()
-{
-	if (bQueuedEnsurePourNiagara) return;
-
-	UWorld* World = GetWorld();
-	if (!World) return;
-
-	bQueuedEnsurePourNiagara = true;
-
-	World->GetTimerManager().SetTimerForNextTick([this]()
-	{
-		bQueuedEnsurePourNiagara = false;
-
-		if (!IsValid(this)) return;
-
-		EnsurePourNiagaraExists();
-	});
 }
 
 void UContainableComponent::EnsurePourNiagaraExists()
 {
-	if (bIsEnsuringPourNiagara) return;
-	bIsEnsuringPourNiagara = true;
+    if (bIsEnsuringPourNiagara) return;
 
-	AActor* TempOwner = GetOwner();
-	if (!TempOwner)
-	{
-		bIsEnsuringPourNiagara = false;
-		return;
-	}
+    UBlueprint* Blueprint = GetOwningBlueprint(this);
+    if (!IsBlueprintSafeToModify(Blueprint)) return;
 
-	UBlueprint* Blueprint = GetOwningBlueprint(this);
-	if (!Blueprint)
-	{
-		bIsEnsuringPourNiagara = false;
-		return;
-	}
+	
+    bIsEnsuringPourNiagara = true;
 
-	USimpleConstructionScript* SCS = Blueprint->SimpleConstructionScript;
-	if (!SCS)
-	{
-		bIsEnsuringPourNiagara = false;
-		return;
-	}
+	
+    USimpleConstructionScript* SCS = Blueprint->SimpleConstructionScript;
+    for (USCS_Node* Node : SCS->GetAllNodes())
+    {
+        if (!Node) continue;
 
-	for (USCS_Node* Node : SCS->GetAllNodes())
-	{
-		if (!Node) continue;
+        const FString Name = Node->GetVariableName().ToString();
+        if (Name == TEXT("PourVFX") || Name.StartsWith(TEXT("PourVFX_")))
+        {
+            PourNiagaraName = Node->GetVariableName();
+            bIsEnsuringPourNiagara = false;
+            return;
+        }
+    }
 
-		const FString Name = Node->GetVariableName().ToString();
+	
+    USCS_Node* NewNode = SCS->CreateNode(UNiagaraComponent::StaticClass(), TEXT("PourVFX"));
+    if (!NewNode)
+    {
+        bIsEnsuringPourNiagara = false;
+        return;
+    }
 
-		if (Name == TEXT("PourVFX") || Name.StartsWith(TEXT("PourVFX_")))
-		{
-			PourNiagaraName = Node->GetVariableName();
-			bIsEnsuringPourNiagara = false;
-			return;
-		}
-	}
+	
+    PourNiagaraName = NewNode->GetVariableName();
+    if (USCS_Node* RootNode = SCS->GetDefaultSceneRootNode()) RootNode->AddChildNode(NewNode);
+    else SCS->AddNode(NewNode);
 
-	USCS_Node* NewNode = SCS->CreateNode(UNiagaraComponent::StaticClass(), TEXT("PourVFX"));
-	if (!NewNode)
-	{
-		bIsEnsuringPourNiagara = false;
-		return;
-	}
-
-	PourNiagaraName = NewNode->GetVariableName();
-
-	if (USCS_Node* RootNode = SCS->GetDefaultSceneRootNode())
-	{
-		RootNode->AddChildNode(NewNode);
-	}
-	else
-	{
-		SCS->AddNode(NewNode);
-	}
-
-	FBlueprintEditorUtils::MarkBlueprintAsStructurallyModified(Blueprint);
-
-	bIsEnsuringPourNiagara = false;
+	
+    FBlueprintEditorUtils::MarkBlueprintAsStructurallyModified(Blueprint);
+    bIsEnsuringPourNiagara = false;
 }
 #endif
 
