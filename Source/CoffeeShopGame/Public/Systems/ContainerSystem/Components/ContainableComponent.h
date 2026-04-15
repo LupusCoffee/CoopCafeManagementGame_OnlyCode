@@ -246,16 +246,11 @@ protected:
 #if WITH_EDITOR
 	virtual void OnComponentCreated() override;
 	virtual void PostEditUndo() override;
+	
 	void EnsurePourAnchorExists();
-	void QueueEnsurePourAnchorExists();
-	bool bQueuedRemovePourAnchor = false;
 	bool bIsEnsuringPourAnchor = false;
-	bool bQueuedEnsurePourAnchor = false;
-
 	void EnsurePourNiagaraExists();
-	void QueueEnsurePourNiagaraExists();
 	bool bIsEnsuringPourNiagara = false;
-	bool bQueuedEnsurePourNiagara = false;
 #endif
 
 	
