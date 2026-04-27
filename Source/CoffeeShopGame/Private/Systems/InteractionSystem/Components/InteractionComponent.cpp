@@ -48,7 +48,7 @@ void UInteractionComponent::TickComponent(float DeltaTime, enum ELevelTick TickT
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 	
-	//tick hover --> make into function
+	//tick hover
 	if (HoveringActor) IInteractable::Execute_Local_TickHover(HoveringActor, PlayerContext, DeltaTime);
 	for (UActorComponent* HoveredComp : HoveredComponents)
 	{
@@ -108,12 +108,12 @@ FPlayerContext UInteractionComponent::RefreshDynamicContext()
 //Hover
 void UInteractionComponent::UpdateHover()
 {
-	//reset
+	// reset
 	AActor* LookedAt = PlayerContext.LookedAtActor;
 	AActor* NewHoveredActor = nullptr;
 	TArray<UActorComponent*> NewHoveredComponents;
 	
-	//set new hovered actor and components
+	// set new hovered actor and components
 	if (LookedAt)
 	{
 		if (LookedAt->GetClass()->ImplementsInterface(UInteractable::StaticClass())) NewHoveredActor = LookedAt;
@@ -124,7 +124,7 @@ void UInteractionComponent::UpdateHover()
 		}
 	}
 	
-	//component
+	// component
 	if (HoveredComponents != NewHoveredComponents)
 	{
 		for (UActorComponent* OldHoveredComp : HoveredComponents)
@@ -138,7 +138,7 @@ void UInteractionComponent::UpdateHover()
 		HoveredComponents = NewHoveredComponents;
 	}
 	
-	//actor
+	// actor
 	if (NewHoveredActor == HoveringActor) return;
 	if (HoveringActor) IInteractable::Execute_Local_EndHover(HoveringActor, PlayerContext);
 	if (NewHoveredActor) IInteractable::Execute_Local_StartHover(NewHoveredActor, PlayerContext);
