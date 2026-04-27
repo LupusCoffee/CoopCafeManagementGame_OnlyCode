@@ -99,9 +99,12 @@ protected:
 	//Variables --> Hidden, Interaction
 	UPROPERTY(BlueprintReadOnly)
 	FPlayerContext PlayerContext;
+	
+	UPROPERTY()
+	FActiveInteraction Local_ActiveInteraction;
 
 	UPROPERTY()
-	FActiveInteraction ActiveInteraction;
+	FActiveInteraction Server_ActiveInteraction;
 	
 	
 	//Variables --> Hidden, Hover
@@ -137,7 +140,7 @@ protected:
 	UFUNCTION()
 	FPlayerContext RefreshDynamicContext();
 
-	//Methods --> Hover
+	//Methods --> Highlight
 	UFUNCTION()
 	void UpdateHover();
 
@@ -153,7 +156,13 @@ protected:
 	void Server_TryStartInteraction(EActionId ActionId);
 
 	UFUNCTION()
+	void Local_ResolveInteraction(EActionId ActionId, FPlayerContext Context, AActor*& OutActor, TArray<UActorComponent*>& OutComponents);
+	
+	UFUNCTION()
 	void Server_ResolveInteraction(EActionId ActionId, FPlayerContext Context, AActor*& OutActor, TArray<UActorComponent*>& OutComponents);
+	
+	UFUNCTION()
+	bool Local_TryResolveInteractionGroup(AActor* ActorToResolve, EActionId ActionId, FPlayerContext Context, AActor*& OutActor, TArray<UActorComponent*>& OutComponents);
 	
 	UFUNCTION()
 	bool Server_TryResolveInteractionGroup(AActor* ActorToResolve, EActionId ActionId, FPlayerContext Context, AActor*& OutActor, TArray<UActorComponent*>& OutComponents);
