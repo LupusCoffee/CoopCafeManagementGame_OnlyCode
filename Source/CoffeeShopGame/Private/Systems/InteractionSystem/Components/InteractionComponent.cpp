@@ -6,6 +6,7 @@
 class UHighlightRegistrySubsystem;
 
 
+
 //Setup
 UInteractionComponent::UInteractionComponent(): PlayerContext()
 {
@@ -47,7 +48,7 @@ void UInteractionComponent::TickComponent(float DeltaTime, enum ELevelTick TickT
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 	
-	//tick hover
+	//tick hover --> make into function
 	if (HoveringActor) IInteractable::Execute_Local_TickHover(HoveringActor, PlayerContext, DeltaTime);
 	for (UActorComponent* HoveredComp : HoveredComponents)
 	{
@@ -157,23 +158,30 @@ void UInteractionComponent::TryInteract(EActionId ActionId, EInteractionType Int
 
 // start interaction
 void UInteractionComponent::TryStartInteraction(EActionId ActionId)
-{
+{	
 	Local_TryStartInteraction(ActionId);
 	Server_TryStartInteraction(ActionId);
 }
 
 void UInteractionComponent::Local_TryStartInteraction(EActionId ActionId)
-{
-	if (ActiveInteraction.ActionId != ActionId && ActiveInteraction.ActionId != EActionId::None) return;
-	ActiveInteraction.ActionId = ActionId;
-
-	//todo: implement local interaction
+{	
+	// if active and different action --> return
+	if (Local_ActiveInteraction.IsActive() && Local_ActiveInteraction.ActionId != ActionId) return;
+	
+	// interaction on ActiveActor + ActiveComponents
+	const FPlayerContext& Context = RefreshDynamicContext();
+	
+	AActor* ActiveActor;
+	TArray<UActorComponent*> ActiveComponents;
+	Local_ResolveInteraction(ActionId, Context, ActiveActor, ActiveComponents);
+	
+	Local_ActiveInteraction.Set(ActionId, ActiveActor, ActiveComponents);
 }
 
 void UInteractionComponent::Server_TryStartInteraction_Implementation(EActionId ActionId)
 {
 	// if active and different action --> return
-	if (ActiveInteraction.IsActive() && ActiveInteraction.ActionId != ActionId) return;
+	if (Server_ActiveInteraction.IsActive() && Server_ActiveInteraction.ActionId != ActionId) return;
 	
 	// interaction on ActiveActor + ActiveComponents
 	const FPlayerContext& Context = RefreshDynamicContext();
@@ -182,32 +190,85 @@ void UInteractionComponent::Server_TryStartInteraction_Implementation(EActionId 
 	TArray<UActorComponent*> ActiveComponents;
 	Server_ResolveInteraction(ActionId, Context, ActiveActor, ActiveComponents);
 	
-	ActiveInteraction.Set(ActionId, ActiveActor, ActiveComponents);
+	Server_ActiveInteraction.Set(ActionId, ActiveActor, ActiveComponents);
 }
 
-void UInteractionComponent::Server_ResolveInteraction(EActionId ActionId, FPlayerContext Context, 
-	AActor*& OutActor, TArray<UActorComponent*>& OutComponents)
+void UInteractionComponent::Local_ResolveInteraction(EActionId ActionId, FPlayerContext Context, AActor*& OutActor, TArray<UActorComponent*>& OutComponents)
 {
 	OutActor = nullptr;
 	OutComponents.Empty();
 	
 	if (AActor* LookedAt = Context.LookedAtActor)
 	{
-		//note: executes interactable interface on actor and components
+		bool bSuccess = Local_TryResolveInteractionGroup(LookedAt, ActionId, Context, OutActor, OutComponents);
+		if (bSuccess) return;
+	}
+	
+	if (AActor* Held = GetHeldInteractable(Context.HolderComponent))
+	{
+		bool bSuccess = Local_TryResolveInteractionGroup(Held, ActionId, Context, OutActor, OutComponents);
+		if (bSuccess) return;
+	}
+}
+
+void UInteractionComponent::Server_ResolveInteraction(EActionId ActionId, FPlayerContext Context, AActor*& OutActor, TArray<UActorComponent*>& OutComponents)
+{
+	OutActor = nullptr;
+	OutComponents.Empty();
+	
+	if (AActor* LookedAt = Context.LookedAtActor)
+	{
 		bool bSuccess = Server_TryResolveInteractionGroup(LookedAt, ActionId, Context, OutActor, OutComponents);
 		if (bSuccess) return;
 	}
 	
 	if (AActor* Held = GetHeldInteractable(Context.HolderComponent))
 	{
-		//note: executes interactable interface on actor and components
 		bool bSuccess = Server_TryResolveInteractionGroup(Held, ActionId, Context, OutActor, OutComponents);
 		if (bSuccess) return;
 	}
 }
 
-bool UInteractionComponent::Server_TryResolveInteractionGroup(AActor* ActorToResolve,
-	EActionId ActionId, FPlayerContext Context, AActor*& OutActor, TArray<UActorComponent*>& OutComponents)
+bool UInteractionComponent::Local_TryResolveInteractionGroup(AActor* ActorToResolve, EActionId ActionId, FPlayerContext Context, AActor*& OutActor, TArray<UActorComponent*>& OutComponents)
+{
+	// initial null check
+	if (!ActorToResolve) return false;
+	
+	
+	// set defaults
+	OutActor = nullptr;
+	OutComponents.Empty();
+	
+	
+	// resolve just actor
+	bool bActorSuccess = false;
+	if (ActorToResolve->GetClass()->ImplementsInterface(UInteractable::StaticClass()))
+	{
+		bActorSuccess = IInteractable::Execute_Local_StartInteraction(ActorToResolve, ActionId, Context);
+		if (bActorSuccess) OutActor = ActorToResolve;
+	}
+	
+	
+	// resolve its components
+	TArray<UActorComponent*> Components;
+	ActorToResolve->GetComponents(Components);
+	
+	for (UActorComponent* Component : Components)
+	{
+		if (!Component->GetClass()->ImplementsInterface(UInteractable::StaticClass())) continue;
+		
+		bool bSuccess = IInteractable::Execute_Local_StartInteraction(Component, ActionId, Context);
+		if (bSuccess) OutComponents.Add(Component);
+	}
+	
+	bool bComponentsSuccess = OutComponents.Num() > 0;
+	
+	
+	// return
+	return bActorSuccess || bComponentsSuccess;
+}
+
+bool UInteractionComponent::Server_TryResolveInteractionGroup(AActor* ActorToResolve, EActionId ActionId, FPlayerContext Context, AActor*& OutActor, TArray<UActorComponent*>& OutComponents)
 {
 	// initial null check
 	if (!ActorToResolve) return false;
@@ -248,25 +309,29 @@ bool UInteractionComponent::Server_TryResolveInteractionGroup(AActor* ActorToRes
 
 // tick interaction - runs on both client and server
 void UInteractionComponent::TryTickInteraction(float DeltaTime)
-{
-	if (!ActiveInteraction.IsActive()) return;
-	
-	const FPlayerContext& Context = RefreshDynamicContext();
-	
+{	
 	if (!GetOwner()->HasAuthority())
 	{		
-		if (ActiveInteraction.Actor) IInteractable::Execute_Local_TickInteraction(ActiveInteraction.Actor, ActiveInteraction.ActionId, Context, DeltaTime);
-		for (auto ActiveComp : ActiveInteraction.Components)
+		if (!Local_ActiveInteraction.IsActive()) return;
+		
+		const FPlayerContext& Context = RefreshDynamicContext();
+		
+		if (Local_ActiveInteraction.Actor) IInteractable::Execute_Local_TickInteraction(Local_ActiveInteraction.Actor, Local_ActiveInteraction.ActionId, Context, DeltaTime);
+		for (auto ActiveComp : Local_ActiveInteraction.Components)
 		{
-			IInteractable::Execute_Local_TickInteraction(ActiveComp, ActiveInteraction.ActionId, Context, DeltaTime);
+			IInteractable::Execute_Local_TickInteraction(ActiveComp, Local_ActiveInteraction.ActionId, Context, DeltaTime);
 		}
 	}
 	else
 	{
-		if (ActiveInteraction.Actor) IInteractable::Execute_Server_TickInteraction(ActiveInteraction.Actor, ActiveInteraction.ActionId, Context, DeltaTime);
-		for (auto ActiveComp : ActiveInteraction.Components)
+		if (!Server_ActiveInteraction.IsActive()) return;
+		
+		const FPlayerContext& Context = RefreshDynamicContext();
+		
+		if (Server_ActiveInteraction.Actor) IInteractable::Execute_Server_TickInteraction(Server_ActiveInteraction.Actor, Server_ActiveInteraction.ActionId, Context, DeltaTime);
+		for (auto ActiveComp : Server_ActiveInteraction.Components)
 		{
-			IInteractable::Execute_Server_TickInteraction(ActiveComp, ActiveInteraction.ActionId, Context, DeltaTime);
+			IInteractable::Execute_Server_TickInteraction(ActiveComp, Server_ActiveInteraction.ActionId, Context, DeltaTime);
 		}
 	}
 }
@@ -274,38 +339,38 @@ void UInteractionComponent::TryTickInteraction(float DeltaTime)
 // end interaction
 void UInteractionComponent::TryEndInteraction()
 {
-	Local_TryEndInteraction();		//get interaction payload from this
-	Server_TryEndInteraction();		//send in interaction payload in here
+	Local_TryEndInteraction();
+	Server_TryEndInteraction();
 }
 
 void UInteractionComponent::Local_TryEndInteraction()
 {
-	if (!ActiveInteraction.IsActive()) return;
+	if (!Local_ActiveInteraction.IsActive()) return;
 
 	const FPlayerContext& Context = RefreshDynamicContext();
 	
-	if (ActiveInteraction.Actor) IInteractable::Execute_Local_EndInteraction(ActiveInteraction.Actor, ActiveInteraction.ActionId, Context);
-	for (auto ActiveComp : ActiveInteraction.Components)
+	if (Local_ActiveInteraction.Actor) IInteractable::Execute_Local_EndInteraction(Local_ActiveInteraction.Actor, Local_ActiveInteraction.ActionId, Context);
+	for (auto ActiveComp : Local_ActiveInteraction.Components)
 	{
-		IInteractable::Execute_Local_EndInteraction(ActiveComp, ActiveInteraction.ActionId, Context);
+		IInteractable::Execute_Local_EndInteraction(ActiveComp, Local_ActiveInteraction.ActionId, Context);
 	}
 	
-	if (GetWorld()->GetNetMode() != NM_Standalone) ActiveInteraction.Clear();
+	Local_ActiveInteraction.Clear();
 }
 
 void UInteractionComponent::Server_TryEndInteraction_Implementation()
 {
-	if (!ActiveInteraction.IsActive()) return;
+	if (!Server_ActiveInteraction.IsActive()) return;
 
 	const FPlayerContext& Context = RefreshDynamicContext();
 	
-	if (ActiveInteraction.Actor) IInteractable::Execute_Server_EndInteraction(ActiveInteraction.Actor, ActiveInteraction.ActionId, Context);
-	for (auto ActiveComp : ActiveInteraction.Components)
+	if (Server_ActiveInteraction.Actor) IInteractable::Execute_Server_EndInteraction(Server_ActiveInteraction.Actor, Server_ActiveInteraction.ActionId, Context);
+	for (auto ActiveComp : Server_ActiveInteraction.Components)
 	{
-		IInteractable::Execute_Server_EndInteraction(ActiveComp, ActiveInteraction.ActionId, Context);
+		IInteractable::Execute_Server_EndInteraction(ActiveComp, Server_ActiveInteraction.ActionId, Context);
 	}
 	
-	ActiveInteraction.Clear();
+	Server_ActiveInteraction.Clear();
 }
 
 
